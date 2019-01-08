@@ -1,0 +1,77 @@
+## Two configurations
+ListConfigurations|<Configuration><name>a</name><id>3</id><desc>desc</desc><isPublic>0</isPublic><isDeployed>0</isDeployed><fenceMode>0</fenceMode><type>0</type><owner>demo</owner><dateCreated>2007-10-10</dateCreated></Configuration><Configuration><name>b</name><id>4</id><desc>desc2</desc><isPublic>0</isPublic><isDeployed>0</isDeployed><fenceMode>0</fenceMode><type>0</type><owner>demo</owner><dateCreated>2007-10-10</dateCreated></Configuration>
+
+## No return value
+ConfigurationCapture|0
+
+## No return value
+ConfigurationCheckout|0
+
+## No return value
+ConfigurationClone|0
+
+## No return value
+ConfigurationDelete|0 
+
+## No return value
+ConfigurationDeploy|0 
+
+## No return value
+ConfigurationPerformAction|0 
+
+## No return value
+ConfigurationSetPublicPrivate|0 
+
+## No return value
+ConfigurationUndeploy|0 
+
+## Get a single configuration
+GetConfiguration|<name>a</name><id>3</id><desc>desc</desc><isPublic>0</isPublic><isDeployed>0</isDeployed><fenceMode>0</fenceMode><type>0</type><owner>demo</owner><dateCreated>2007-10-10</dateCreated>
+
+## Return two configurations since configs can have the same name if they are in library and workspace
+GetConfigurationByName|<Configuration><name>a</name><id>3</id><desc>desc</desc><isPublic>0</isPublic><isDeployed>0</isDeployed><fenceMode>0</fenceMode><type>0</type><owner>demo</owner><dateCreated>2007-10-10</dateCreated></Configuration><Configuration><name>b</name><id>4</id><desc>desc2</desc><isPublic>0</isPublic><isDeployed>0</isDeployed><fenceMode>0</fenceMode><type>0</type><owner>demo</owner><dateCreated>2007-10-10</dateCreated></Configuration>
+
+## Return a machine
+GetMachine|<id>3</id><name>a</name><description>desc</description><internalIP>0</internalIP><externalIP>0</externalIP><status>0</status><isDeployed>1</isDeployed>
+
+## Return a list of machines
+ListMachines|<Machine><id>3</id><name>a</name><description>desc</description><internalIP>0</internalIP><externalIP>0</externalIP><status>0</status><isDeployed>1</isDeployed></Machine><Machine><id>4</id><name>b</name><description>desc</description><internalIP>0</internalIP><externalIP>0</externalIP><status>0</status><isDeployed>1</isDeployed></Machine>
+
+## No return value
+ConfigurationDeployEx|0 
+
+## Return a list of virtual network ids
+ConfigurationGetNetworks|<int>23189</int><int>23190</int>
+
+## No return value
+GetDefaultPhysicalNetwork|0
+
+## No return value
+ConfigurationChangeOwner|0
+
+## Return a list of machines
+ListNetworks|<Network><IsPhysical>true</IsPhysical><Name>a</Name><NetID>12345</NetID></Network><Network><IsPhysical>true</IsPhysical><Name>b</Name><NetID>67890</NetID></Network>
+
+## Return a workspace
+GetWorkspaceByName|<Configurations/><Id>3</Id><ResourcePools/><BucketType/><StoredVMQuota/><DeployedVMQuota/><Name>Workspace1</Name><Description>This is a workspace</Description><IsEnabled>true</IsEnabled>
+
+## Return configuration ID
+ConfigurationCloneToWorkspace|0
+
+## No return value
+ConfigurationDeployEx2|0 
+
+## Return a user
+GetUser|<name>user1</name><full_name>Test User</full_name><email_address>test@mail.com</email_address><stored_vm_quota>0</stored_vm_quota><deployed_vm_quota>0</deployed_vm_quota><cache_mode>0</cache_mode><fence_mode>0</fence_mode><boot_delay>0</boot_delay><use_boot_sequence>0</use_boot_sequence><is_enabled>true</is_enabled><is_admin>false</is_admin><is_ldap>true</is_ldap><userId>12345</userId>
+
+## Return configuration ID
+LibraryCloneToWorkspace|0
+
+## Return machine ID
+ConfigurationAddMachineEx|0
+
+## Return configuration ID
+ConfigurationCreateEx|0
+
+## Return configuration ID
+ConfigurationCreateEx2|0

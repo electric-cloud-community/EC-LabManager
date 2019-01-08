@@ -1,0 +1,131 @@
+<editor>
+    <help>/commander/pages/@PLUGIN_KEY@-@PLUGIN_VERSION@/@PLUGIN_KEY@_help?s=Administration&amp;ss=Plugins#CloudManagerGrow</help>
+    <formElement>
+        <type>entry</type>
+        <label>LabManager Connection:</label>
+        <property>connection_config</property>
+        <required>1</required>
+        <documentation>The name of the configuration which holds all the connection information for LabManager. This must reference a valid existing configuration.</documentation>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>LabManager Organization:</label>
+        <property>labmanager_org</property>
+        <required>0</required>
+        <documentation>The name of the Organization in LabManager. This must reference an existing Organization in Lab Manager.</documentation>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>LabManager Workspace:</label>
+        <property>labmanager_work</property>
+        <required>0</required>
+        <value>Main</value>
+        <documentation>The workspace within Lab Manager (required in Lab Manager 4.0 and newer). This must reference an existing Workspace in Lab Manager(default is Main).</documentation>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>Configuration:</label>
+        <property>labmanager_config</property>
+        <required>1</required>
+        <documentation>A configuration in the Lab Manager library. Provide the name of an existing configuration.</documentation>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>New Configuration Name:</label>
+        <property>labmanager_newconfig</property>
+        <required>0</required>
+        <documentation>The name to use for the newly checked out configuration. If blank a name will be automatically created.</documentation>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>LabManager version:</label>
+        <property>labmanager_version</property>
+        <required>1</required>
+        <documentation>LabManager version number.</documentation>
+    </formElement>
+    <formElement>
+        <type>radio</type>
+        <label>Configuration state:</label>
+        <property>labmanager_state</property>
+        <value>0</value>
+        <documentation>Set the state of the configuration to public or private.</documentation>
+        <option>
+            <name>private</name>
+            <value>0</value>
+        </option>
+        <option>
+            <name>public</name>
+            <value>1</value>
+        </option>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>Physical Network:</label>
+        <property>labmanager_physical_network</property>
+        <required>0</required>
+        <documentation>Name or ID of the physical network to be used.</documentation>
+    </formElement>
+    <formElement>
+        <type>select</type>
+        <label>Network deployment:</label>
+        <property>labmanager_fencedmode</property>
+        <required>1</required>
+        <documentation>Network deployment option for VMs.</documentation>
+        <option>
+            <name>None</name>
+            <value>1</value>
+        </option>
+        <option>
+            <name>Fenced - Block IN and OUT</name>
+            <value>2</value>
+        </option>
+        <option>
+            <name>Fenced - Allow OUT</name>
+            <value>3</value>
+        </option>
+        <option>
+            <name>Fenced - Allow IN and OUT</name>
+            <value>4</value>
+        </option>
+        <option>
+            <name>Bridged</name>
+            <value>100</value>
+        </option>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>Commander Workspace:</label>
+        <property>labmanager_workspace</property>
+        <required>0</required>
+        <documentation>The ElectricCommander workspace the resource should use.</documentation>
+    </formElement>       
+    <formElement>
+        <type>entry</type>
+        <label>Provision tag:</label>
+        <property>tag</property>
+        <required>1</required>
+        <value>&#36;[jobStepId]</value>
+        <documentation>The unique tag for this provision to keep it separate from other provisions stored in the same results area.</documentation>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>JobStep Timeout:</label>
+        <property>labmanager_timeout</property>
+        <required>0</required>
+        <documentation>Timeout for the step execution in minutes. Blank means no timeout.</documentation>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>Number of servers:</label>
+        <property>number</property>
+        <documentation>Number of new servers</documentation>
+        <required>1</required>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>Resource Pool:</label>
+        <property>poolName</property>
+        <documentation>The ElectricCommander resource pool names to be associated with the machines in this configuration if resources are created.</documentation>
+        <required>1</required>
+    </formElement>
+</editor>

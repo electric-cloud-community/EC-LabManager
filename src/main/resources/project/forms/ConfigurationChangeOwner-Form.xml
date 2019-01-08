@@ -1,0 +1,46 @@
+<editor>
+    <help>/commander/pages/@PLUGIN_KEY@-@PLUGIN_VERSION@/@PLUGIN_KEY@_help?s=Administration&amp;ss=Plugins#ConfigurationChangeOwner</help>
+    <formElement>
+        <type>entry</type>
+        <label>LabManager Connection:</label>
+        <property>connection_config</property>
+        <required>1</required>
+        <documentation>The name of the configuration which holds all the connection information for LabManager. This must reference a valid existing configuration.</documentation>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>LabManager Organization:</label>
+        <property>labmanager_org</property>
+        <required>1</required>
+        <documentation>The name of the Organization in LabManager. This must reference an existing Organization in Lab Manager.</documentation>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>LabManager Workspace:</label>
+        <property>labmanager_work</property>
+        <required>0</required>
+        <value>Main</value>
+        <documentation>The workspace within Lab Manager (required in Lab Manager 4.0 and newer). This must reference an existing Workspace in Lab Manager(default is Main).</documentation>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>Configuration Id:</label>
+        <property>labmanager_configurationid</property>
+        <required>1</required>
+        <documentation>Id of the configuration whose owner will be changed.</documentation>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>New Owner Name:</label>
+        <property>labmanager_newownerid</property>
+        <required>1</required>
+        <documentation>Id of the new configuration owner.</documentation>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>JobStep Timeout:</label>
+        <property>labmanager_timeout</property>
+        <required>0</required>
+        <documentation>Timeout for the step execution in minutes. Blank means no timeout.</documentation>
+    </formElement>
+</editor>

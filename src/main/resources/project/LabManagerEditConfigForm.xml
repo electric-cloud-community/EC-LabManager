@@ -1,0 +1,52 @@
+<editor>
+    <formElement>
+        <type>entry</type>
+        <label>Lab Manager Server:</label>
+        <property>labmanager_server</property>
+        <value></value>
+        <documentation>Hostname or IP address of the Lab Manager server.</documentation>
+        <required>1</required>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>Lab Manager Port:</label>
+        <property>labmanager_port</property>
+        <value></value>
+        <documentation>Lab Manager server port number.</documentation>
+        <required>0</required>
+    </formElement>
+    <formElement>
+        <type>credential</type>
+        <label>Login as:</label>
+        <property>credential</property>
+        <value></value>
+        <required>1</required>
+        <documentation>VMware vCenter Lab Manager account username/password. This account must have enough privileges to perform API funtions.</documentation>
+    </formElement>
+    <formElement>
+        <type>checkbox</type>
+        <label>Attempt Connection?:</label>
+        <property>attempt</property>
+        <checkedValue>1</checkedValue>
+        <uncheckedValue>0</uncheckedValue>
+        <initiallyChecked>1</initiallyChecked>        
+        <documentation>Attempt a connection to check credentials.</documentation>
+        <required>1</required>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>Debug Level:</label>
+        <property>debug</property>
+        <value>1</value>
+        <documentation>Provide the debug level for the output: 0=errors only, 1=normal headers and responses, 2+=debugging information included.</documentation>
+        <required>1</required>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>Soap Timeout:</label>
+        <property>soap_timeout</property>
+        <value>600</value>
+        <documentation>Provide the timeout in seconds for each soap call.</documentation>
+        <required>1</required>
+    </formElement>
+</editor>

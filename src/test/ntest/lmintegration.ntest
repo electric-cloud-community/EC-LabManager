@@ -1,0 +1,1027 @@
+# -*-Perl-*-
+#
+# lmintegration.ntest -
+#
+# This file contains tests for the lmintegration script.  Is organized in the
+# standard fashion expected by "ntest".
+#
+# Copyright (c) 2006-2007 Electric Cloud, Inc.
+# All rights reserved
+
+createPrivateDirs 0;
+
+$ENV{"PERL5SHELL"} = "";
+
+#-------------------------------------------------------------------------
+# funcEval
+#
+#      This function is used for unit testing of individual functions
+#      in lmintegration. It arranges for an arbitrary Perl script to be evaluated
+#      in lmintegration right after argument processing.
+#
+# Results:
+#      The return value is a list with two elements consisting of the
+#      standard output from the lmintegration invocation and its standard error
+#
+# Side Effects:
+#      None, except for whatever lmintegration does.
+#
+# Arguments:
+#      script -           Perl script.
+#      options -          (Optional) String containing additional options
+#                         to include on lmintegration command line.
+#-------------------------------------------------------------------------
+
+sub funcEval($;$) {
+    my ($script, $options) = @_;
+
+    if (defined($options)) {
+        $options = " $options";
+    } else {
+        $options = "";
+    }
+    my $command = "\"$^X\" \"$::gTestOut/../classes/project/lmintegration.pl\"";
+    if ($script ne "") {
+        writeFile("_script", $script);
+        $command .= " --load _script";
+    }
+    $command .= "$options 2>_err";
+
+    my $out = `$command`;
+    my $err = readFile("_err");
+    unlink("_err");
+    unlink ("_script");
+    return ($out, $err);
+}
+
+ntest "lmintegration::setup_server", {}, sub {
+    # start fake server once for all tests
+    # this is a list, in order, of results expected
+    my $responses = "$::gTestFileDir/soap_responses";
+    fakeSOAP ( $responses );
+    my $fileexists = 0;
+    if ( -f "info-ntest-soap.log" ) {
+        $fileexists = 1;
+    } else {
+        mesg("TEST", "server did not create a file info-ntest-soap.log\n");
+    }
+    assertDiff('1',"$fileexists");
+};
+
+ntest "LabManager::ListConfigurations", {}, sub {
+    my $server = "tcp://127.0.0.1";
+    my $cmd = q{ 
+        my $ec = new ElectricCommander();
+        $ec->abortOnError(0);
+        my $opts;
+        $opts->{JobStepId} = 1;
+        $opts->{Debug} = 2;
+        $opts->{SoapTimeout} = 300;
+        $opts->{labmanager_server} = "} . $server .
+        q{"; $opts->{labmanager_port} = "} . $::gAuxPort .
+        q{"; $opts->{labmanager_user} = "user";
+        $opts->{labmanager_pass} = "pass";
+        $opts->{labmanager_org} = "org";
+        my $gt = new LabManager($ec, $opts); 
+        $gt->Initialize();
+        my %result = $gt->CallLabManager("ListConfigurations",
+            ( "configurationType" => 1  ) );
+        my @res = @ { $result{"value"} } ;
+        foreach my $cfg (@res) {
+            print "name:" .  $cfg->{"name"} . "\n";
+        }
+        exit();
+        };
+    my $options = " --loadFromFile --test";
+    my ($out, $err) = funcEval($cmd , $options);
+    assertDiff('', $err);
+    assert(outdent (q{
+           |Initialize server proxy=tcp://127.0.0.1:\\d+/LabManager/SOAP/LabManagerInternal.asmx
+            name:a
+            name:b
+            }),
+
+            "=~", $out);
+};
+
+ntest "LabManager::ConfigurationCapture", {}, sub {
+    my $server = "tcp://127.0.0.1";
+    my $cmd = q{ 
+        my $ec = new ElectricCommander();
+        $ec->abortOnError(0);
+        my $opts;
+        $opts->{JobStepId} = 1;
+        $opts->{Debug} = 2;
+        $opts->{SoapTimeout} = 300;
+        $opts->{labmanager_server} = "} . $server .
+        q{"; $opts->{labmanager_port} = "} . $::gAuxPort .
+        q{"; $opts->{labmanager_user} = "user";
+        $opts->{labmanager_pass} = "pass";
+        $opts->{labmanager_org} = "org";
+        my $gt = new LabManager($ec, $opts); 
+        $gt->Initialize();
+        my %result = $gt->CallLabManager("ConfigurationCapture",
+        ( "configurationId" => 1, "newLibraryName" => "name" ) );
+    my $res = $result{"value"};
+    print "result:" .  $res . "\n";
+    exit();
+    };
+    my $options = " --loadFromFile --test";
+    my ($out, $err) = funcEval($cmd , $options);
+    assertDiff('', $err);
+    assert(outdent (q{
+           |Initialize server proxy=tcp://127.0.0.1:\\d+/LabManager/SOAP/LabManagerInternal.asmx
+            result:0
+            }),
+
+            "=~", $out);
+};
+
+ntest "LabManager::ConfigurationCheckout", {}, sub {
+
+    my $server = "tcp://127.0.0.1";
+    my $cmd = q{ 
+        my $ec = new ElectricCommander();
+        $ec->abortOnError(0);
+        my $opts;
+        $opts->{JobStepId} = 1;
+        $opts->{Debug} = 2;
+        $opts->{SoapTimeout} = 300;
+        $opts->{labmanager_server} = "} . $server .
+        q{"; $opts->{labmanager_port} = "} . $::gAuxPort .
+        q{"; $opts->{labmanager_user} = "user";
+        $opts->{labmanager_pass} = "pass";
+        $opts->{labmanager_org} = "org";
+        my $gt = new LabManager($ec, $opts); 
+        $gt->Initialize();
+        my %result = $gt->CallLabManager("ConfigurationCheckout",
+       ( "configurationId" => 1, "workspaceName" => "name" ) );
+    my $res = $result{"value"};
+    print "result:" .  $res . "\n";
+    exit();
+    };
+    my $options = " --loadFromFile --test";
+    my ($out, $err) = funcEval($cmd , $options);
+    assertDiff('', $err);
+    assert(outdent (q{
+           |Initialize server proxy=tcp://127.0.0.1:\\d+/LabManager/SOAP/LabManagerInternal.asmx
+            result:0
+            }),
+
+            "=~", $out);
+};
+
+ntest "LabManager::ConfigurationClone", {}, sub {
+
+    my $server = "tcp://127.0.0.1";
+    my $cmd = q{ 
+        my $ec = new ElectricCommander();
+        $ec->abortOnError(0);
+        my $opts;
+        $opts->{JobStepId} = 1;
+        $opts->{Debug} = 2;
+        $opts->{SoapTimeout} = 300;
+        $opts->{labmanager_server} = "} . $server .
+        q{"; $opts->{labmanager_port} = "} . $::gAuxPort .
+        q{"; $opts->{labmanager_user} = "user";
+        $opts->{labmanager_pass} = "pass";
+        $opts->{labmanager_org} = "org";
+        my $gt = new LabManager($ec, $opts); 
+        $gt->Initialize();
+        my %result = $gt->CallLabManager("ConfigurationClone",
+        ( "configurationId" => 1, "newWorkspaceName" => "name" ) );
+    my $res = $result{"value"};
+    print "result:" .  $res . "\n";
+    exit();
+    };
+    my $options = " --loadFromFile --test";
+    my ($out, $err) = funcEval($cmd , $options);
+    assertDiff('', $err);
+    assert(outdent (q{
+           |Initialize server proxy=tcp://127.0.0.1:\\d+/LabManager/SOAP/LabManagerInternal.asmx
+            result:0
+            }),
+
+            "=~", $out);
+};
+
+ntest "LabManager::ConfigurationDelete", {}, sub {
+
+    my $server = "tcp://127.0.0.1";
+    my $cmd = q{ 
+        my $ec = new ElectricCommander();
+        $ec->abortOnError(0);
+        my $opts;
+        $opts->{JobStepId} = 1;
+        $opts->{Debug} = 2;
+        $opts->{SoapTimeout} = 300;
+        $opts->{labmanager_server} = "} . $server .
+        q{"; $opts->{labmanager_port} = "} . $::gAuxPort .
+        q{"; $opts->{labmanager_user} = "user";
+        $opts->{labmanager_pass} = "pass";
+        $opts->{labmanager_org} = "org";
+        my $gt = new LabManager($ec, $opts); 
+        $gt->Initialize();
+        my %result = $gt->CallLabManager("ConfigurationDelete",
+        ( "configurationId" => 1 ) );
+    my $res = $result{"faultcode"};
+    print "result:" .  $res . "\n";
+    exit();
+    };
+    my $options = " --loadFromFile --test";
+    my ($out, $err) = funcEval($cmd , $options);
+    assertDiff('', $err);
+    assert(outdent (q{
+           |Initialize server proxy=tcp://127.0.0.1:\\d+/LabManager/SOAP/LabManagerInternal.asmx
+            result:0
+            }),
+
+            "=~", $out);
+};
+
+ntest "LabManager::ConfigurationDeploy", {}, sub {
+    my $server = "tcp://127.0.0.1";
+    my $cmd = q{ 
+        my $ec = new ElectricCommander();
+        $ec->abortOnError(0);
+        my $opts;
+        $opts->{JobStepId} = 1;
+        $opts->{Debug} = 2;
+        $opts->{SoapTimeout} = 300;
+        $opts->{labmanager_server} = "} . $server .
+        q{"; $opts->{labmanager_port} = "} . $::gAuxPort .
+        q{"; $opts->{labmanager_user} = "user";
+        $opts->{labmanager_pass} = "pass";
+        $opts->{labmanager_org} = "org";
+        my $gt = new LabManager($ec, $opts); 
+        $gt->Initialize();
+        my %result = $gt->CallLabManager("ConfigurationDeploy",
+        ( "isCached" => 0, "configurationId" => 1, "fenceMode" => 0) );
+    my $res = $result{"faultcode"};
+    print "result:" .  $res . "\n";
+    exit();
+    };
+    my $options = " --loadFromFile --test";
+    my ($out, $err) = funcEval($cmd , $options);
+    assertDiff('', $err);
+    assert(outdent (q{
+           |Initialize server proxy=tcp://127.0.0.1:\\d+/LabManager/SOAP/LabManagerInternal.asmx
+            result:0
+            }),
+
+            "=~", $out);
+};
+
+ntest "LabManager::ConfigurationPerformAction", {}, sub {
+
+    my $server = "tcp://127.0.0.1";
+    my $cmd = q{ 
+        my $ec = new ElectricCommander();
+        $ec->abortOnError(0);
+        my $opts;
+        $opts->{JobStepId} = 1;
+        $opts->{Debug} = 2;
+        $opts->{SoapTimeout} = 300;
+        $opts->{labmanager_server} = "} . $server .
+        q{"; $opts->{labmanager_port} = "} . $::gAuxPort .
+        q{"; $opts->{labmanager_user} = "user";
+        $opts->{labmanager_pass} = "pass";
+        $opts->{labmanager_org} = "org";
+        my $gt = new LabManager($ec, $opts); 
+        $gt->Initialize();
+        my %result = $gt->CallLabManager("ConfigurationPerformAction",
+        ( "configurationId" => 1 , "action" => 3 ) );
+    my $res = $result{"faultcode"};
+    print "result:" .  $res . "\n";
+    exit();
+    };
+    my $options = " --loadFromFile --test";
+    my ($out, $err) = funcEval($cmd , $options);
+    assertDiff('', $err);
+    assert(outdent (q{
+           |Initialize server proxy=tcp://127.0.0.1:\\d+/LabManager/SOAP/LabManagerInternal.asmx
+            result:0
+            }),
+
+            "=~", $out);
+};
+
+ntest "LabManager::ConfigurationSetPublicPrivate", {}, sub {
+
+    my $server = "tcp://127.0.0.1";
+    my $cmd = q{ 
+        my $ec = new ElectricCommander();
+        $ec->abortOnError(0);
+        my $opts;
+        $opts->{JobStepId} = 1;
+        $opts->{Debug} = 2;
+        $opts->{SoapTimeout} = 300;
+        $opts->{labmanager_server} = "} . $server .
+        q{"; $opts->{labmanager_port} = "} . $::gAuxPort .
+        q{"; $opts->{labmanager_user} = "user";
+        $opts->{labmanager_pass} = "pass";
+        $opts->{labmanager_org} = "org";
+        my $gt = new LabManager($ec, $opts); 
+        $gt->Initialize();
+        my %result = $gt->CallLabManager("ConfigurationSetPublicPrivate",
+        ( "configurationId" => 3 , "isPublic" => 1 ) );
+    my $res = $result{"faultcode"};
+    print "result:" .  $res . "\n";
+    exit();
+    };
+    my $options = " --loadFromFile --test";
+    my ($out, $err) = funcEval($cmd , $options);
+    assertDiff('', $err);
+    assert(outdent (q{
+           |Initialize server proxy=tcp://127.0.0.1:\\d+/LabManager/SOAP/LabManagerInternal.asmx
+            result:0
+            }),
+
+            "=~", $out);
+};
+
+ntest "LabManager::ConfigurationUndeploy", {}, sub {
+
+    my $server = "tcp://127.0.0.1";
+    my $cmd = q{ 
+        my $ec = new ElectricCommander();
+        $ec->abortOnError(0);
+        my $opts;
+        $opts->{JobStepId} = 1;
+        $opts->{Debug} = 2;
+        $opts->{SoapTimeout} = 300;
+        $opts->{labmanager_server} = "} . $server .
+        q{"; $opts->{labmanager_port} = "} . $::gAuxPort .
+        q{"; $opts->{labmanager_user} = "user";
+        $opts->{labmanager_pass} = "pass";
+        $opts->{labmanager_org} = "org";
+        my $gt = new LabManager($ec, $opts); 
+        $gt->Initialize();
+        my %result = $gt->CallLabManager("ConfigurationUndeploy",
+        ( "configurationId" => 3 ) );
+    my $res = $result{"faultcode"};
+    print "result:" .  $res . "\n";
+    exit();
+    };
+    my $options = " --loadFromFile --test";
+    my ($out, $err) = funcEval($cmd , $options);
+    assertDiff('', $err);
+    assert(outdent (q{
+           |Initialize server proxy=tcp://127.0.0.1:\\d+/LabManager/SOAP/LabManagerInternal.asmx
+            result:0
+            }),
+
+            "=~", $out);
+};
+
+ntest "LabManager::GetConfiguration", {}, sub {
+
+    my $server = "tcp://127.0.0.1";
+    my $cmd = q{ 
+        my $ec = new ElectricCommander();
+        $ec->abortOnError(0);
+        my $opts;
+        $opts->{JobStepId} = 1;
+        $opts->{Debug} = 2;
+        $opts->{SoapTimeout} = 300;
+        $opts->{labmanager_server} = "} . $server .
+        q{"; $opts->{labmanager_port} = "} . $::gAuxPort .
+        q{"; $opts->{labmanager_user} = "user";
+        $opts->{labmanager_pass} = "pass";
+        $opts->{labmanager_org} = "org";
+        my $gt = new LabManager($ec, $opts); 
+        $gt->Initialize();
+        my %result = $gt->CallLabManager("GetConfiguration",
+        ( "id" => 3 ) );
+    my @cfgs = @ { $result{"value"}};
+    foreach my $cfg (@cfgs) {
+        print "name:" .  $cfg->{"name"} . "\n";
+    }
+    exit();
+    };
+    my $options = " --loadFromFile --test";
+    my ($out, $err) = funcEval($cmd , $options);
+    assertDiff('', $err);
+    assert(outdent (q{
+           |Initialize server proxy=tcp://127.0.0.1:\\d+/LabManager/SOAP/LabManagerInternal.asmx
+            name:a
+            }),
+
+            "=~", $out);
+};
+
+ntest "LabManager::GetConfigurationByName", {}, sub {
+
+    my $server = "tcp://127.0.0.1";
+    my $cmd = q{ 
+        my $ec = new ElectricCommander();
+        $ec->abortOnError(0);
+        my $opts;
+        $opts->{JobStepId} = 1;
+        $opts->{Debug} = 2;
+        $opts->{SoapTimeout} = 300;
+        $opts->{labmanager_server} = "} . $server .
+        q{"; $opts->{labmanager_port} = "} . $::gAuxPort .
+        q{"; $opts->{labmanager_user} = "user";
+        $opts->{labmanager_pass} = "pass";
+        $opts->{labmanager_org} = "org";
+        my $gt = new LabManager($ec, $opts); 
+        $gt->Initialize();
+        my %result = $gt->CallLabManager("GetConfigurationByName",
+        ( "name" => "name" ) );
+    my @cfgs = @ { $result{"value"}};
+    foreach my $cfg (@cfgs) {
+        print "name:" .  $cfg->{"name"} . "\n";
+    }
+    exit();
+    };
+    my $options = " --loadFromFile --test";
+    my ($out, $err) = funcEval($cmd , $options);
+    assertDiff('', $err);
+    assert(outdent (q{
+           |Initialize server proxy=tcp://127.0.0.1:\\d+/LabManager/SOAP/LabManagerInternal.asmx
+            name:a
+            name:b
+            }),
+
+            "=~", $out);
+};
+
+ntest "LabManager::GetMachine", {}, sub {
+
+    my $server = "tcp://127.0.0.1";
+    my $cmd = q{ 
+        my $ec = new ElectricCommander();
+        $ec->abortOnError(0);
+        my $opts;
+        $opts->{JobStepId} = 1;
+        $opts->{Debug} = 2;
+        $opts->{SoapTimeout} = 300;
+        $opts->{labmanager_server} = "} . $server .
+        q{"; $opts->{labmanager_port} = "} . $::gAuxPort .
+        q{"; $opts->{labmanager_user} = "user";
+        $opts->{labmanager_pass} = "pass";
+        $opts->{labmanager_org} = "org";
+        my $gt = new LabManager($ec, $opts); 
+        $gt->Initialize();
+        my %result = $gt->CallLabManager("GetMachine",
+        ( "machineId" => 3 ) );
+    my @mcns = @ { $result{"value"}};
+    foreach my $mcn (@mcns) {
+        print "name:" .  $mcn->{"name"} . "\n";
+    }
+    exit();
+    };
+    my $options = " --loadFromFile --test";
+    my ($out, $err) = funcEval($cmd , $options);
+    assertDiff('', $err);
+    assert(outdent (q{
+           |Initialize server proxy=tcp://127.0.0.1:\\d+/LabManager/SOAP/LabManagerInternal.asmx
+            name:a
+            }),
+
+            "=~", $out);
+};
+
+ntest "LabManager::ListMachines", {}, sub {
+
+    my $server = "tcp://127.0.0.1";
+    my $cmd = q{ 
+        my $ec = new ElectricCommander();
+        $ec->abortOnError(0);
+        my $opts;
+        $opts->{JobStepId} = 1;
+        $opts->{Debug} = 2;
+        $opts->{SoapTimeout} = 300;
+        $opts->{labmanager_server} = "} . $server .
+        q{"; $opts->{labmanager_port} = "} . $::gAuxPort .
+        q{"; $opts->{labmanager_user} = "user";
+        $opts->{labmanager_pass} = "pass";
+        $opts->{labmanager_org} = "org";
+        my $gt = new LabManager($ec, $opts); 
+        $gt->Initialize();
+        my %result = $gt->CallLabManager("ListMachines",
+        ( "configurationId" => 3 ) );
+    my @mcns = @ { $result{"value"}};
+    foreach my $mcn (@mcns) {
+        print "name:" .  $mcn->{"name"} . "\n";
+    }
+    exit();
+    };
+    my $options = " --loadFromFile --test";
+    my ($out, $err) = funcEval($cmd , $options);
+    assertDiff('', $err);
+    assert(outdent (q{
+           |Initialize server proxy=tcp://127.0.0.1:\\d+/LabManager/SOAP/LabManagerInternal.asmx
+            name:a
+            name:b
+            }),
+
+            "=~", $out);
+};
+
+
+ntest "LabManager::ConfigurationDeployEx", {}, sub {
+    my $server = "tcp://127.0.0.1";
+    my $cmd = q{ 
+        my $ec = new ElectricCommander();
+        $ec->abortOnError(0);
+        my $opts;
+        $opts->{JobStepId} = 1;
+        $opts->{Debug} = 2;
+        $opts->{SoapTimeout} = 300;
+        $opts->{labmanager_server} = "} . $server .
+        q{"; $opts->{labmanager_port} = "} . $::gAuxPort .
+        q{"; $opts->{labmanager_user} = "user";
+        $opts->{labmanager_pass} = "pass";
+        $opts->{labmanager_org} = "org";
+        $opts->{LMUseInternalAPI} = 1;
+        my $gt = new LabManager($ec, $opts); 
+        $gt->Initialize();
+        my %result = $gt->CallLabManager("ConfigurationDeployEx",
+        ("configurationId" => 1, "honorBootOrder" => 0, "startAfterDeploy" => 1,
+         "fenceNetworkOptions" => [], "bridgeNetworkOptions" => []) );
+    my $res = $result{"faultcode"};
+    print "result:" .  $res . "\n";
+    exit();
+    };
+    my $options = " --loadFromFile --test";
+    my ($out, $err) = funcEval($cmd , $options);
+    assertDiff('', $err);
+    assert(outdent (q{
+           |Initialize server proxy=tcp://127.0.0.1:\\d+/LabManager/SOAP/LabManagerInternal.asmx
+            result:0
+            }),
+
+            "=~", $out);
+};
+
+
+ntest "LabManager::ConfigurationDeployExWrongAPI", {}, sub {
+    my $server = "tcp://127.0.0.1";
+    my $cmd = q{ 
+        my $ec = new ElectricCommander();
+        $ec->abortOnError(0);
+        my $opts;
+        $opts->{JobStepId} = 1;
+        $opts->{Debug} = 2;
+        $opts->{SoapTimeout} = 300;
+        $opts->{labmanager_server} = "} . $server .
+        q{"; $opts->{labmanager_port} = "} . $::gAuxPort .
+        q{"; $opts->{labmanager_user} = "user";
+        $opts->{labmanager_pass} = "pass";
+        $opts->{labmanager_org} = "org";
+        my $gt = new LabManager($ec, $opts); 
+        $gt->Initialize();
+        my %result = $gt->CallLabManager("ConfigurationDeployEx",
+        ("configurationId" => 1, "honorBootOrder" => 0, "startAfterDeploy" => 1,
+         "fenceNetworkOptions" => [], "bridgeNetworkOptions" => []) );
+    my $res = $result{"faultcode"};
+    print "result:" .  $res . "\n";
+    exit();
+    };
+    my $options = " --loadFromFile --test";
+    my ($out, $err) = funcEval($cmd , $options);
+    assertDiff('', $err);
+    assert(outdent (q{
+           |Initialize server proxy=tcp://127.0.0.1:\\d+/LabManager/SOAP/LabManagerInternal.asmx
+            Error: CallLabManager: command ConfigurationDeployEx requires the Internal API
+            result:-1
+            }),
+
+            "=~", $out);
+};
+
+
+ntest "LabManager::ConfigurationGetNetworks", {}, sub {
+    my $server = "tcp://127.0.0.1";
+    my $cmd = q{ 
+        my $ec = new ElectricCommander();
+        $ec->abortOnError(0);
+        my $opts;
+        $opts->{JobStepId} = 1;
+        $opts->{Debug} = 2;
+        $opts->{SoapTimeout} = 300;
+        $opts->{labmanager_server} = "} . $server .
+        q{"; $opts->{labmanager_port} = "} . $::gAuxPort .
+        q{"; $opts->{labmanager_user} = "user";
+        $opts->{labmanager_pass} = "pass";
+        $opts->{labmanager_org} = "org";
+        $opts->{LMUseInternalAPI} = 1;
+        my $gt = new LabManager($ec, $opts); 
+        $gt->Initialize();
+        my %result = $gt->CallLabManager("ConfigurationGetNetworks",
+        ( "configID" => 99, "physical" => 0) );
+    my @networkIds = @ { $result{"value"}};
+    foreach my $networkId (@networkIds) {
+        print "network ID:$networkId\n";
+    }
+    my $res = $result{"faultcode"};
+    print "result:" .  $res . "\n";
+    exit();
+    };
+    my $options = " --loadFromFile --test";
+    my ($out, $err) = funcEval($cmd , $options);
+    assertDiff('', $err);
+    assert(outdent (q{
+           |Initialize server proxy=tcp://127.0.0.1:\\d+/LabManager/SOAP/LabManagerInternal.asmx
+            network ID:23189
+            network ID:23190
+            result:0
+            }),
+
+            "=~", $out);
+};
+
+
+ntest "LabManager::GetDefaultPhysicalNetwork", {}, sub {
+    my $server = "tcp://127.0.0.1";
+    my $cmd = q{ 
+        my $ec = new ElectricCommander();
+        $ec->abortOnError(0);
+        my $opts;
+        $opts->{JobStepId} = 1;
+        $opts->{Debug} = 2;
+        $opts->{SoapTimeout} = 300;
+        $opts->{labmanager_server} = "} . $server .
+        q{"; $opts->{labmanager_port} = "} . $::gAuxPort .
+        q{"; $opts->{labmanager_user} = "user";
+        $opts->{labmanager_pass} = "pass";
+        $opts->{labmanager_org} = "org";
+        $opts->{LMUseInternalAPI} = 1;
+        my $gt = new LabManager($ec, $opts); 
+        $gt->Initialize();
+        my %result = $gt->CallLabManager("GetDefaultPhysicalNetwork",
+        ( ) );
+    my $res = $result{"faultcode"};
+    print "result:" .  $res . "\n";
+    exit();
+    };
+    my $options = " --loadFromFile --test";
+    my ($out, $err) = funcEval($cmd , $options);
+    assertDiff('', $err);
+    assert(outdent (q{
+           |Initialize server proxy=tcp://127.0.0.1:\\d+/LabManager/SOAP/LabManagerInternal.asmx
+            result:0
+            }),
+
+            "=~", $out);
+};
+
+ntest "LabManager::ConfigurationChangeOwner", {}, sub {
+    my $server = "tcp://127.0.0.1";
+    my $cmd = q{ 
+        my $ec = new ElectricCommander();
+        $ec->abortOnError(0);
+        my $opts;
+        $opts->{JobStepId} = 1;
+        $opts->{Debug} = 2;
+        $opts->{SoapTimeout} = 300;
+        $opts->{labmanager_server} = "} . $server .
+        q{"; $opts->{labmanager_port} = "} . $::gAuxPort .
+        q{"; $opts->{labmanager_user} = "user";
+        $opts->{labmanager_pass} = "pass";
+        $opts->{labmanager_org} = "org";
+        $opts->{LMUseInternalAPI} = 1;
+        my $gt = new LabManager($ec, $opts); 
+        $gt->Initialize();
+        my %result = $gt->CallLabManager("ConfigurationChangeOwner",
+        ( "configurationId" => 99, "newOwnerId" => 1234) );
+    my $res = $result{"faultcode"};
+    print "result:" .  $res . "\n";
+    exit();
+    };
+    my $options = " --loadFromFile --test";
+    my ($out, $err) = funcEval($cmd , $options);
+    assertDiff('', $err);
+    assert(outdent (q{
+           |Initialize server proxy=tcp://127.0.0.1:\\d+/LabManager/SOAP/LabManagerInternal.asmx
+            result:0
+            }),
+
+            "=~", $out);
+};
+
+ntest "LabManager::ListNetworks", {}, sub {
+    my $server = "tcp://127.0.0.1";
+    my $cmd = q{ 
+        my $ec = new ElectricCommander();
+        $ec->abortOnError(0);
+        my $opts;
+        $opts->{JobStepId} = 1;
+        $opts->{Debug} = 2;
+        $opts->{SoapTimeout} = 300;
+        $opts->{labmanager_server} = "} . $server .
+        q{"; $opts->{labmanager_port} = "} . $::gAuxPort .
+        q{"; $opts->{labmanager_user} = "user";
+        $opts->{labmanager_pass} = "pass";
+        $opts->{labmanager_org} = "org";
+        $opts->{LMUseInternalAPI} = 1;
+        my $gt = new LabManager($ec, $opts); 
+        $gt->Initialize();
+        my %result = $gt->CallLabManager("ListNetworks");
+        my @networks = @ { $result{"value"}};
+        foreach my $network (@networks) {
+            print "name:" .  $network->{"Name"} . "\n";
+        }
+        exit();
+    };
+    my $options = " --loadFromFile --test";
+    my ($out, $err) = funcEval($cmd , $options);
+    assertDiff('', $err);
+    assert(outdent (q{
+           |Initialize server proxy=tcp://127.0.0.1:\\d+/LabManager/SOAP/LabManagerInternal.asmx
+            name:a
+            name:b
+            }),
+
+            "=~", $out);
+};
+
+ntest "LabManager::GetWorkspaceByName", {}, sub {
+
+    my $server = "tcp://127.0.0.1";
+    my $cmd = q{ 
+        my $ec = new ElectricCommander();
+        $ec->abortOnError(0);
+        my $opts;
+        $opts->{JobStepId} = 1;
+        $opts->{Debug} = 2;
+        $opts->{SoapTimeout} = 300;
+        $opts->{labmanager_server} = "} . $server .
+        q{"; $opts->{labmanager_port} = "} . $::gAuxPort .
+        q{"; $opts->{labmanager_user} = "user";
+        $opts->{labmanager_pass} = "pass";
+        $opts->{labmanager_org} = "org";
+        my $gt = new LabManager($ec, $opts); 
+        $gt->Initialize();
+        my %result = $gt->CallLabManager("GetWorkspaceByName",
+            ( "workspaceName" => "TestWorkspace" ) );
+        my @workspaces = @ { $result{"value"}};
+        foreach my $workspace (@workspaces) {
+            print "Id:" .  $workspace->{"Id"} . "\n";
+        }
+        exit();
+    };
+    my $options = " --loadFromFile --test";
+    my ($out, $err) = funcEval($cmd , $options);
+    assertDiff('', $err);
+    assert(outdent (q{
+           |Initialize server proxy=tcp://127.0.0.1:\\d+/LabManager/SOAP/LabManagerInternal.asmx
+            Id:3
+            }),
+
+            "=~", $out);
+};
+
+ntest "LabManager::ConfigurationCloneToWorkspace", {}, sub {
+    my $server = "tcp://127.0.0.1";
+    my $cmd = q{ 
+        my $ec = new ElectricCommander();
+        $ec->abortOnError(0);
+        my $opts;
+        $opts->{JobStepId} = 1;
+        $opts->{Debug} = 2;
+        $opts->{SoapTimeout} = 300;
+        $opts->{labmanager_server} = "} . $server .
+        q{"; $opts->{labmanager_port} = "} . $::gAuxPort .
+        q{"; $opts->{labmanager_user} = "user";
+        $opts->{labmanager_pass} = "pass";
+        $opts->{labmanager_org} = "org";
+        $opts->{LMUseInternalAPI} = 1;
+        my $gt = new LabManager($ec, $opts); 
+        $gt->Initialize();
+        my %result = $gt->CallLabManager("ConfigurationCloneToWorkspace",
+            ( "configID" => 3, "destWorkspaceId" => 4, "isNewConfiguration" => "true", "newConfigName" => "TestConfiguration", "description" => "This is a test", 
+              "configurationCopyData" => "", "existingConfigId" => 2, "isFullClone" => "true", "storageLeaseInMilliseconds" => 9999) );
+    my $res = $result{"faultcode"};
+    print "result:" .  $res . "\n";
+    exit();
+    };
+    my $options = " --loadFromFile --test";
+    my ($out, $err) = funcEval($cmd , $options);
+    assertDiff('', $err);
+    assert(outdent (q{
+           |Initialize server proxy=tcp://127.0.0.1:\\d+/LabManager/SOAP/LabManagerInternal.asmx
+            result:0
+            }),
+
+            "=~", $out);
+};
+
+ntest "LabManager::ConfigurationDeployEx2", {}, sub {
+    my $server = "tcp://127.0.0.1";
+    my $cmd = q{ 
+        my $ec = new ElectricCommander();
+        $ec->abortOnError(0);
+        my $opts;
+        $opts->{JobStepId} = 1;
+        $opts->{Debug} = 2;
+        $opts->{SoapTimeout} = 300;
+        $opts->{labmanager_server} = "} . $server .
+        q{"; $opts->{labmanager_port} = "} . $::gAuxPort .
+        q{"; $opts->{labmanager_user} = "user";
+        $opts->{labmanager_pass} = "pass";
+        $opts->{labmanager_org} = "org";
+        $opts->{LMUseInternalAPI} = 1;
+        my $gt = new LabManager($ec, $opts); 
+        $gt->Initialize();
+        my %result = $gt->CallLabManager("ConfigurationDeployEx2",
+        ("configurationId" => 1, "honorBootOrder" => 0, "startAfterDeploy" => 1,
+         "fenceNetworkOptions" => [], "bridgeNetworkOptions" => [], "isCrossHost" => 1) );
+        my $res = $result{"faultcode"};
+        print "result:" .  $res . "\n";
+        exit();
+    };
+    my $options = " --loadFromFile --test";
+    my ($out, $err) = funcEval($cmd , $options);
+    assertDiff('', $err);
+    assert(outdent (q{
+           |Initialize server proxy=tcp://127.0.0.1:\\d+/LabManager/SOAP/LabManagerInternal.asmx
+            result:0
+            }),
+
+            "=~", $out);
+};
+
+ntest "LabManager::GetUser", {}, sub {
+
+    my $server = "tcp://127.0.0.1";
+    my $cmd = q{ 
+        my $ec = new ElectricCommander();
+        $ec->abortOnError(0);
+        my $opts;
+        $opts->{JobStepId} = 1;
+        $opts->{Debug} = 2;
+        $opts->{SoapTimeout} = 300;
+        $opts->{labmanager_server} = "} . $server .
+        q{"; $opts->{labmanager_port} = "} . $::gAuxPort .
+        q{"; $opts->{labmanager_user} = "user";
+        $opts->{labmanager_pass} = "pass";
+        $opts->{labmanager_org} = "org";
+        $opts->{LMUseInternalAPI} = 1;
+        my $gt = new LabManager($ec, $opts); 
+        $gt->Initialize();
+        my %result = $gt->CallLabManager("GetUser",
+            ( "userName" => "user1" ) );
+        my @users = @ { $result{"value"}};
+        foreach my $user (@users) {
+            print "User ID:" .  $user->{"userId"} . "\n";
+        }
+        exit();
+    };
+    my $options = " --loadFromFile --test";
+    my ($out, $err) = funcEval($cmd , $options);
+    assertDiff('', $err);
+    assert(outdent (q{
+           |Initialize server proxy=tcp://127.0.0.1:\\d+/LabManager/SOAP/LabManagerInternal.asmx
+            User ID:12345
+            }),
+
+            "=~", $out);
+};
+
+ntest "LabManager::LibraryCloneToWorkspace", {}, sub {
+    my $server = "tcp://127.0.0.1";
+    my $cmd = q{ 
+        my $ec = new ElectricCommander();
+        $ec->abortOnError(0);
+        my $opts;
+        $opts->{JobStepId} = 1;
+        $opts->{Debug} = 2;
+        $opts->{SoapTimeout} = 300;
+        $opts->{labmanager_server} = "} . $server .
+        q{"; $opts->{labmanager_port} = "} . $::gAuxPort .
+        q{"; $opts->{labmanager_user} = "user";
+        $opts->{labmanager_pass} = "pass";
+        $opts->{labmanager_org} = "org";
+        $opts->{LMUseInternalAPI} = 1;
+        my $gt = new LabManager($ec, $opts); 
+        $gt->Initialize();
+        my %result = $gt->CallLabManager("LibraryCloneToWorkspace",
+            ( "libraryId" => 3, "destWorkspaceId" => 4, "isNewConfiguration" => 1, "newConfigName" => "NewConfiguration",
+              "description" => "From API", "copyData" => "1,2,3", "existingConfigId" => 0, "isFullClone" => 0,
+              "storageLeaseInMilliseconds" => 99999) );
+        my $res = $result{"faultcode"};
+        print "result:" .  $res . "\n";
+        exit();
+    };
+    my $options = " --loadFromFile --test";
+    my ($out, $err) = funcEval($cmd , $options);
+    assertDiff('', $err);
+    assert(outdent (q{
+           |Initialize server proxy=tcp://127.0.0.1:\\d+/LabManager/SOAP/LabManagerInternal.asmx
+            result:0
+            }),
+
+            "=~", $out);
+};
+
+ntest "LabManager::ConfigurationAddMachineEx", {}, sub {
+    my $server = "tcp://127.0.0.1";
+    my $cmd = q{ 
+        my $ec = new ElectricCommander();
+        $ec->abortOnError(0);
+        my $opts;
+        $opts->{JobStepId} = 1;
+        $opts->{Debug} = 2;
+        $opts->{SoapTimeout} = 300;
+        $opts->{labmanager_server} = "} . $server .
+        q{"; $opts->{labmanager_port} = "} . $::gAuxPort .
+        q{"; $opts->{labmanager_user} = "user";
+        $opts->{labmanager_pass} = "pass";
+        $opts->{labmanager_org} = "org";
+        $opts->{LMUseInternalAPI} = 1;
+        my $gt = new LabManager($ec, $opts); 
+        $gt->Initialize();
+        my %result = $gt->CallLabManager("ConfigurationAddMachineEx",
+            ( "id" => 1, "template_id" => 1, "name" => "TestVM", "desc" => "This is a test VM", 
+              "boot_seq" => 0, "boot_delay" => 0, "netInfo" => "") );
+        my $res = $result{"faultcode"};
+        print "result:" .  $res . "\n";
+        exit();
+    };
+    my $options = " --loadFromFile --test";
+    my ($out, $err) = funcEval($cmd , $options);
+    assertDiff('', $err);
+    assert(outdent (q{
+           |Initialize server proxy=tcp://127.0.0.1:\\d+/LabManager/SOAP/LabManagerInternal.asmx
+            result:0
+            }),
+
+            "=~", $out);
+};
+
+ntest "LabManager::ConfigurationCreateEx", {}, sub {
+    my $server = "tcp://127.0.0.1";
+    my $cmd = q{ 
+        my $ec = new ElectricCommander();
+        $ec->abortOnError(0);
+        my $opts;
+        $opts->{JobStepId} = 1;
+        $opts->{Debug} = 2;
+        $opts->{SoapTimeout} = 300;
+        $opts->{labmanager_server} = "} . $server .
+        q{"; $opts->{labmanager_port} = "} . $::gAuxPort .
+        q{"; $opts->{labmanager_user} = "user";
+        $opts->{labmanager_pass} = "pass";
+        $opts->{labmanager_org} = "org";
+        $opts->{LMUseInternalAPI} = 1;
+        my $gt = new LabManager($ec, $opts); 
+        $gt->Initialize();
+        my %result = $gt->CallLabManager("ConfigurationCreateEx",
+            ( "name" => "TestConfiguration", "desc" => "This is a test") );
+        my $res = $result{"faultcode"};
+        print "result:" .  $res . "\n";
+        exit();
+    };
+    my $options = " --loadFromFile --test";
+    my ($out, $err) = funcEval($cmd , $options);
+    assertDiff('', $err);
+    assert(outdent (q{
+           |Initialize server proxy=tcp://127.0.0.1:\\d+/LabManager/SOAP/LabManagerInternal.asmx
+            result:0
+            }),
+
+            "=~", $out);
+};
+
+ntest "LabManager::ConfigurationCreateEx2", {}, sub {
+    my $server = "tcp://127.0.0.1";
+    my $cmd = q{ 
+        my $ec = new ElectricCommander();
+        $ec->abortOnError(0);
+        my $opts;
+        $opts->{JobStepId} = 1;
+        $opts->{Debug} = 2;
+        $opts->{SoapTimeout} = 300;
+        $opts->{labmanager_server} = "} . $server .
+        q{"; $opts->{labmanager_port} = "} . $::gAuxPort .
+        q{"; $opts->{labmanager_user} = "user";
+        $opts->{labmanager_pass} = "pass";
+        $opts->{labmanager_org} = "org";
+        $opts->{LMUseInternalAPI} = 1;
+        my $gt = new LabManager($ec, $opts); 
+        $gt->Initialize();
+        my %result = $gt->CallLabManager("ConfigurationCreateEx2",
+            ( "name" => "TestConfiguration", "desc" => "This is a test", "fencePolicy" => "NotSpecified", 
+              "deploymentLeaseInMilliseconds" => 0, "storageLeaseInMilliseconds" => 0,) );
+        my $res = $result{"faultcode"};
+        print "result:" .  $res . "\n";
+        exit();
+    };
+    my $options = " --loadFromFile --test";
+    my ($out, $err) = funcEval($cmd , $options);
+    assertDiff('', $err);
+    assert(outdent (q{
+           |Initialize server proxy=tcp://127.0.0.1:\\d+/LabManager/SOAP/LabManagerInternal.asmx
+            result:0
+            }),
+
+            "=~", $out);
+};
+
+ntest "LabManager::cleanup", {}, sub {
+    soapServerDown();
+};
+

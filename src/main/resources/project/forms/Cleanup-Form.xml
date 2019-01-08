@@ -1,0 +1,89 @@
+<editor>
+    <help>/commander/pages/@PLUGIN_KEY@-@PLUGIN_VERSION@/@PLUGIN_KEY@_help?s=Administration&amp;ss=Plugins#Cleanup</help>
+    <formElement>
+        <type>entry</type>
+        <label>LabManager Connection:</label>
+        <property>connection_config</property>
+        <required>1</required>
+        <documentation>The name of the configuration which holds all the connection information for LabManager. This must reference a valid existing configuration.</documentation>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>LabManager Organization:</label>
+        <property>labmanager_org</property>
+        <required>1</required>
+        <documentation>The name of the Organization in LabManager. This must reference an existing Organization in Lab Manager.</documentation>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>LabManager Workspace:</label>
+        <property>labmanager_work</property>
+        <required>0</required>
+        <value>Main</value>
+        <documentation>The workspace within Lab Manager (required in Lab Manager 4.0 and newer). This must reference an existing Workspace in Lab Manager(default is Main).</documentation>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>Configuration:</label>
+        <property>labmanager_config</property>
+        <required>0</required>
+        <documentation>A configuration in the Lab Manager library. Provide the name of an existing configuration.</documentation>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>New Library Name:</label>
+        <property>new_library_name</property>
+        <required>0</required>
+        <documentation>New library name for the captured configuration. If blank the configuration won't be captured to the library.</documentation>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>Save Configuration name:</label>
+        <property>save_configuration_name</property>
+        <required>0</required>
+        <documentation>Name of the saved configuration. If blank the configuration won't be saved.</documentation>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>Save Configuration owner:</label>
+        <property>save_configuration_owner</property>
+        <required>0</required>
+        <documentation>Username of the new owner of the saved configuration. If blank the owner is not changed.</documentation>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>Deployed Results location:</label>
+        <property>results</property>
+        <required>0</required>
+        <documentation>The ElectricCommander location to get properties (default is /myJob/LabManager/deployed_configs).</documentation>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>Deployed tag:</label>
+        <property>tag</property>
+        <required>1</required>
+        <documentation>Tag to get the deployed configuration.</documentation>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>Results location:</label>
+        <property>destination_results</property>
+        <required>0</required>
+        <documentation>The ElectricCommander location to store resulting configuration properties (default is /myJob/LabManager/deployed_configs).</documentation>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>Results tag:</label>
+        <property>destination_tag</property>
+        <required>0</required>
+        <value>&#36;[jobStepId]</value>
+        <documentation>The unique tag for this operation to keep it separate from other operations stored in the same results area.</documentation>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>JobStep Timeout:</label>
+        <property>labmanager_timeout</property>
+        <required>0</required>
+        <documentation>Timeout for the step execution in minutes. Blank means no timeout.</documentation>
+    </formElement>
+</editor>

@@ -1,0 +1,18 @@
+<editor>
+    <help>/commander/pages/@PLUGIN_KEY@-@PLUGIN_VERSION@/@PLUGIN_KEY@_help?s=Administration&amp;ss=Plugins#CloudManagerSync</help>
+    <formElement>
+        <type>entry</type>
+        <label>LabManager Connection:</label>
+        <property>connection_config</property>
+        <required>1</required>
+        <documentation>The name of the configuration which holds all the connection information for LabManager. This must reference a valid existing configuration.</documentation>
+    </formElement>
+    <formElement>
+        <property>deployments</property>
+        <label>List of Deployments:</label>
+        <documentation>A list of deployments to check.</documentation>
+        <required>1</required>
+        <type>entry</type>
+    </formElement>
+</editor>
+    

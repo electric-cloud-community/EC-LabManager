@@ -1,0 +1,2305 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta name="generator" content="HTML Tidy for Windows (vers 25 March 2009), see www.w3.org" />
+  <meta content="text/html; charset=us-ascii" http-equiv="content-type" />
+
+  <title>ElectricFlow Plugin for VMware vCenter Lab
+  Manager</title>
+  <link rel="stylesheet" href="../../plugins/@PLUGIN_KEY@/pluginhelp.css" type="text/css" media="screen" />
+</head>
+
+<body>
+  <div class="help">
+    <h1>VMware vCenter Lab Manager</h1>
+
+    <p>Plugin Version @PLUGIN_VERSION@</p>
+    <hr style="margin-left: -10px; margin-top: 10px; height: 1px; width: 100%; color: #5981BD;" noshade="noshade" />
+    <!-- The tool description should answer these kinds of questions:
+        What is the tool itself is used for in the development
+        process? Who would use this tool? What is the general use-case or
+        problem that this tool solves? Look at the tool's documentation or
+        website(s) to get their own descriptions. Look at Wikipedia or other
+        outside websites. If there is a Hudson plugin, read their
+        documentation for ideas, examples, etc. It's OK to copy word-for-word
+        only if appropriate, such as FOSS - but not commercial software.
+        -->
+    <p>July 1, 2015</p>
+		
+    <p>VMware vCenter Lab Manager is a software development and
+    testing tool that enables application owners, development, and
+    QA teams to pool network and storage resources. Lab Manager
+    provides users with a fully equipped data center, facilitating
+    collaboration among individuals using diverse operating
+    platforms and facilities.</p>
+
+    <p>The main purpose of VMware Lab Manager is to simplify and
+    streamline the process of gathering and interconnecting
+    machines, installing and maintaining operating systems, adding
+    and updating applications and resolving problems such as
+    software bugs. VMware vCenter Lab Manager supports open,
+    continuous communication among members and subgroups within a
+    large, diverse development team. Users can deploy, capture, and
+    share multi-tier application environments in seconds while IT
+    remains in administrative control.</p>
+
+    <p>Lab Manager supports VMware Infrastructure 3, a software
+    suite designed to centralize and optimize desktop management
+    and data center resources through virtualization. VMware
+    vCenter Lab Manager saves time and enables unique live
+    snapshot/rollback functionality for purpose-built dev/test
+    environments.</p>
+
+    <h2>VMware vCenter Lab Manager Links</h2>
+
+    <p>More information can be found at <a href="http://www.vmware.com/products/labmanager/">VMware
+    website</a>.</p>
+
+    <p>Check the SOAP API guide at <a href="http://www.vmware.com/pdf/labmanager_SOAP_API_Guide.pdf">VMware
+    LabManager</a>.</p>
+
+    <h2>ElectricFlow Integration to VMware vCenter Lab
+    Manager</h2><!-- The integration description should answer the questions:
+        How deep does our integration go? Why should I care? What general
+        functionality does the plugin include? What functionality does
+        the plugin omit?
+        -->
+
+    <p>EC-LabManager integration uses the Lab Manager SOAP
+    application programming interface (API) which provides access
+    to the Lab Manager system. By using this secure API, the
+    integration can connect to the Lab Manager server to automate
+    and perform various operations providing a more generic
+    interface for executing Lab Manager API commands and managing
+    resources.</p>
+
+    <p>The plugin interact with Lab Manager data using PERL to
+    perform the following tasks:</p>
+
+    <ul>
+      <li>Create configuration to hold connection information.</li>
+
+      <li>Query for virtual machine and configuration
+      information.</li>
+
+      <li>Perform actions on machines and configurations.</li>
+
+      <li>Capture, checkout, clone, delete, and deploy
+      configurations.</li>
+
+      <li>Create ElectricFlow resources.</li>
+    </ul>
+
+    <p>This plugin provides two primary actions: Provision and
+    Cleanup, which work as a pair within a job.</p>
+
+    <h2>Integrated Version</h2>
+
+    <p>This plugin was developed and tested against VMware vCenter
+    Lab Manager versions 3.0 and 4.0</p>
+
+    <p>ElectricFlow minimum version 4.0</p>
+
+    <h1>Plugin Procedures</h1>
+
+    <p>IMPORTANT: For all parameter descriptions below, required
+    parameters are shown in <span class="required">bold
+    italics</span>.</p>
+
+    <div id="CreateConfiguration"><a name="CreateConfiguration" id="CreateConfiguration"></a>
+
+    <h3>Plugin Configuration</h3>
+    <!-- If the plugin has separate configurations then include this section,
+        otherwise omit this whole section. We don't need to have a configuration
+        section that just says "There is no configuration for this plugin."
+        -->
+
+    <p>Plugin configurations are sets of parameters that apply
+    across some or all of the plugin's procedures. They are
+    intended to reduce repetition of common values, create
+    predefined sets of parameters for end users, and to securely
+    store credentials where needed. Each configuration is given a
+    unique name that is entered in designated parameters on
+    procedures that use them.<br />
+    <br />
+    Plugin configurations are created by going to the Electric
+    Commander "Administration" tab, then to the "Plugins" sub-tab.
+    On the right side of the line for the EC-LabManager plugin,
+    there is a "Configure" link which will open the Configuration
+    page.</p>
+    <!-- For all parameters, the parameter name should be *exactly* the same as it appears in the
+    Parameter Panel, and the first sentence(s) of the description should be
+    the same as the tooltip (if there is one). After that, the parameter
+    description can go into greater detail about the parameter including
+    valid value ranges and examples.
+    -->
+
+    <table class="grid">
+      <thead>
+        <tr>
+          <th>Parameter</th>
+
+          <th>Description</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td class="required">Connection Name</td>
+
+          <td>Provide a unique name for the connection, keeping in
+          mind that you may need to create additional connections
+          over time. (Required)</td>
+        </tr>
+
+        <tr>
+          <td class="required">Lab Manager Server</td>
+
+          <td>Hostname or IP address of the Lab Manager server.
+          (Required)</td>
+        </tr>
+
+        <tr>
+          <td>Lab Manager Port</td>
+
+          <td>Lab Manager server port number.</td>
+        </tr>
+
+        <tr>
+          <td class="required">Configuration Credential
+          Parameters</td><!-- Describe *exactly* which user name and password go here.
+                Is it for a particlar machine? Is it for a website? Is it for a
+                particular function in the tool? Does it depend on another
+                parameter (like a machine name) for its meaning?
+                -->
+
+          <td>VMware vCenter Lab Manager account username/password.
+          This account must have enough privileges to perform API
+          functions. (Required)</td>
+        </tr>
+
+        <tr>
+          <td class="required">Attempt Connection?</td>
+
+          <td>Attempt a connection to the server to check the provided
+          credentials. (Required)</td>
+        </tr>
+        
+        <tr>
+          <td class="required">Debug</td>
+
+          <td>Provide the debug level for the output: 0=errors
+          only, 1=normal headers and responses, 2+=debugging
+          information included. (Required)</td>
+        </tr>
+
+        <tr>
+          <td class="required">Soap timeout</td>
+
+          <td>Provide the timeout in seconds for each soap call.
+          (Required)</td>
+        </tr>
+      </tbody>
+    </table><img alt="" src="../../plugins/@PLUGIN_KEY@/images/parameters/configuration_panel.png" /></div>
+
+    <div id="Provision"><a name="Provision" id="Provision"></a>
+
+    <h3>Provision</h3>
+
+    <p>This procedure allows users to provision a new configuration
+    using the VMWare Lab Manager API. Run this procedure to create
+    and deploy a new Lab Manager configuration and create resources
+    for machines in the new configuration.<br />
+    The plugin will set properties on the ElectricFlow server
+    using the values from "Results location" and "Provision tag".
+    Users can set the location where they want properties to be
+    stored by specifying the "Results location" field, if this
+    field is blank, the default location in the job is used:
+    /myJob/LabManager/deployed_configs. When this procedure is
+    executed, properties will be stored in "Results
+    location"/"Provision tag". If "Create resources?" is checked,
+    the resources will use the "Commander Workspace" and will be
+    assigned to "Resource Pool(s)", If it is unchecked "Resource
+    Pool(s)" and "Commander Workspace" will be ignored.</p>
+
+    <p><strong>IMPORTANT:</strong> This procedure is intended to
+    run on Lab Manager 3.5 or earlier ONLY. See procedure:
+    Provision4.0</p>
+
+    <table class="grid">
+      <thead>
+        <tr>
+          <th>Parameter</th>
+
+          <th>Description</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td class="required">LabManager Connection</td>
+
+          <td>The name of the configuration which holds all the
+          connection information for LabManager. This must
+          reference a valid existing configuration. (Required)</td>
+        </tr>
+
+        <tr>
+          <td>LabManager Organization</td>
+
+          <td>The name of the Organization in LabManager. This must
+          reference an existing Organization in Lab Manager.</td>
+        </tr>
+
+        <tr>
+          <td>LabManager Workspace</td>
+
+          <td>The workspace within Lab Manager (required in Lab
+          Manager 4.0 and newer). This must reference an existing
+          Workspace in Lab Manager (default is Main).</td>
+        </tr>
+
+        <tr>
+          <td class="required">Configuration</td>
+
+          <td>A configuration in the Lab Manager library. Provide
+          the name of an existing configuration. (Required)</td>
+        </tr>
+
+        <tr>
+          <td>New Configuration Name</td>
+
+          <td>The name to use for the newly checked out
+          configuration. If blank a name will be automatically
+          created.</td>
+        </tr>
+
+        <tr>
+          <td>Configuration state</td>
+
+          <td>Set the state of the configuration to public or
+          private.</td>
+        </tr>
+
+        <tr>
+          <td>Physical Network</td>
+
+          <td>Name or ID of the physical network to be used.</td>
+        </tr>
+
+        <tr>
+          <td class="required">Network deployment</td>
+
+          <td>
+            Network deployment option for VMs.(Required)
+
+            <ul>
+              <li style="list-style-type: none; list-style-image: none; list-style-position: outside;">
+              Options:</li>
+
+              <li>None</li>
+
+              <li>Fenced - Block IN and OUT</li>
+
+              <li>Fenced - Allow OUT</li>
+
+              <li>Fenced - Allow IN and OUT</li>
+
+              <li>Bridged</li>
+            </ul>
+          </td>
+        </tr>
+
+        <tr>
+          <td class="required">Create resources?</td>
+
+          <td>Create resources for machines in the configuration.
+          If checked, this creates the resource on the
+          ElectricFlow server. (Required)</td>
+        </tr>
+
+        <tr>
+          <td>Commander Workspace</td>
+
+          <td>The ElectricFlow workspace the resource should
+          use.</td>
+        </tr>
+
+        <tr>
+          <td>Resource Pool(s)</td>
+
+          <td>The ElectricFlow resource pool names to be
+          associated with the machines in this configuration if
+          resources are created.</td>
+        </tr>
+
+        <tr>
+          <td>Results location</td>
+
+          <td>The ElectricFlow location to store properties
+          (default is /myJob/LabManager/deployed_configs).</td>
+        </tr>
+
+        <tr>
+          <td class="required">Provision tag</td>
+
+          <td>The unique tag for this provision to keep it separate
+          from other provisions stored in the same results area
+          (default is $[jobStepId]). (Required)</td>
+        </tr>
+
+        <tr>
+          <td>JobStep Timeout</td>
+
+          <td>Timeout for the step execution in minutes. Blank
+          means no timeout.</td>
+        </tr>
+      </tbody>
+    </table><img alt="" src="../../plugins/@PLUGIN_KEY@/images/parameters/provision_panel.png" /></div>
+
+    <div id="Provision4.0"><a name="Provision4.0" id="Provision4.0"></a>
+
+    <h3>Provision4.0</h3>
+
+    <p>This procedure has the same functionality as the Provision
+    procedure (Allows users to provision a new configuration using
+    the VMWare Lab Manager API), but Provision4.0 also allows you
+    to specify a subset of VMs to deploy. Because this feature was
+    implemented in LabManager 4.0, this procedure is not available
+    for earlier LabManager versions. Run this procedure to create
+    and deploy a new Lab Manager configuration and create resources
+    for machines in the new configuration.<br />
+    The plugin will set properties on the ElectricFlow server
+    using the values from "Results location" and "Provision tag".
+    Users can set the location where they want properties to be
+    stored by specifying the "Results location" field, if this
+    field is blank, the default location in the job is used:
+    /myJob/LabManager/deployed_configs. When this procedure is
+    executed, properties will be stored in "Results
+    location"/"Provision tag". If "Create resources?" is checked,
+    the resources will use the "Commander Workspace" and will be
+    assigned to "Resource Pool(s)", If it is unchecked "Resource
+    Pool(s)" and "Commander Workspace" will be ignored.</p>
+
+    <p><strong>IMPORTANT:</strong> This procedure is intended to
+    run on Lab Manager 4.0 or later.</p>
+
+    <table class="grid">
+      <thead>
+        <tr>
+          <th>Parameter</th>
+
+          <th>Description</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td class="required">LabManager Connection</td>
+
+          <td>The name of the configuration which holds all the
+          connection information for LabManager. This must
+          reference a valid existing configuration. (Required)</td>
+        </tr>
+
+        <tr>
+          <td>LabManager Organization</td>
+
+          <td>The name of the Organization in LabManager. This must
+          reference an existing Organization in Lab Manager.</td>
+        </tr>
+
+        <tr>
+          <td>LabManager Workspace</td>
+
+          <td>The workspace within Lab Manager (required in Lab
+          Manager 4.0 and newer). This must reference an existing
+          Workspace in Lab Manager (default is Main).</td>
+        </tr>
+
+        <tr>
+          <td class="required">Configuration</td>
+
+          <td>A configuration in the Lab Manager library. Provide
+          the name of an existing configuration. (Required)</td>
+        </tr>
+
+        <tr>
+          <td>New Configuration Name</td>
+
+          <td>The name to use for the newly checked out
+          configuration. If blank a name will be automatically
+          created.</td>
+        </tr>
+
+        <tr>
+          <td>List of Vms to deploy</td>
+
+          <td>List of VMs to deploy. VM names must be separated by
+          semicolons (;). Blank means that all VMs will be
+          deployed.</td>
+        </tr>
+
+        <tr>
+          <td>Configuration state</td>
+
+          <td>Set the state of the configuration to public or
+          private.</td>
+        </tr>
+
+        <tr>
+          <td>Physical Network</td>
+
+          <td>Name or ID of the physical network to be used.</td>
+        </tr>
+
+        <tr>
+          <td class="required">Network deployment</td>
+
+          <td>
+            Network deployment option for VMs.(Required)
+
+            <ul>
+              <li>Options:</li>
+
+              <li>None</li>
+
+              <li>Fenced - Block IN and OUT</li>
+
+              <li>Fenced - Allow OUT</li>
+
+              <li>Fenced - Allow IN and OUT</li>
+
+              <li>Bridged</li>
+            </ul>
+          </td>
+        </tr>
+
+        <tr>
+          <td class="required">Create resources?</td>
+
+          <td>Create resources for machines in the configuration.
+          If checked, this creates the resource on the
+          ElectricFlow server. (Required)</td>
+        </tr>
+
+        <tr>
+          <td>Commander Workspace</td>
+
+          <td>The ElectricFlow workspace the resource should
+          use.</td>
+        </tr>
+
+        <tr>
+          <td>Resource Pool(s)</td>
+
+          <td>The ElectricFlow resource pool names to be
+          associated with the machines in this configuration if
+          resources are created.</td>
+        </tr>
+
+        <tr>
+          <td>Results location</td>
+
+          <td>The ElectricFlow location to store properties
+          (default is /myJob/LabManager/deployed_configs).</td>
+        </tr>
+
+        <tr>
+          <td class="required">Provision tag</td>
+
+          <td>The unique tag for this provision to keep it separate
+          from other provisions stored in the same results area
+          (default is $[jobStepId]). (Required)</td>
+        </tr>
+
+        <tr>
+          <td>JobStep Timeout</td>
+
+          <td>Timeout for the step execution in minutes. Blank
+          means no timeout.</td>
+        </tr>
+      </tbody>
+    </table><img alt="" src="../../plugins/@PLUGIN_KEY@/images/parameters/provision4_panel.png" /></div>
+
+    <div id="Cleanup"><a id="Cleanup" name="Cleanup"></a>
+
+    <h3>Cleanup</h3>
+
+    <p>This procedure allows users to clean up a configuration
+    using the VMWare LabManager API. It verifies if the
+    configuration to be cleaned up is already undeployed before
+    shutting down machines, shutting down the configuration and
+    undeploying the configuration to avoid errors. Existing
+    Commander resources associated with VMs in the configuration
+    that are cleaned up will be deleted.<br />
+    If "Configuration" is set the procedure will get its
+    information and will undeploy and delete its associated
+    resources, if this parameter is empty the procedure will get
+    the provision results from "Deployed Results
+    location"/"Deployed tag" for a configuration to cleanup. If the
+    "Deployed Results location" field is blank, the default
+    location in the job is used:
+    /myJob/LabManager/deployed_configs.<br />
+    The plugin will set properties on the ElectricFlow server
+    using the values from "Results location" and "Results tag".
+    Users can set the location where they want properties to be
+    stored by specifying the "Results location" field, if this
+    field is blank, the default location in the job is used:
+    /myJob/LabManager/deployed_configs. When this procedure is
+    executed, properties will be stored in "Results
+    location"/"Results tag".<br />
+    "Save Configuration owner" will be ignored if a value for "Save
+    Configuration name" is not provided.</p>
+
+    <table class="grid">
+      <thead>
+        <tr>
+          <th>Parameter</th>
+
+          <th>Description</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td class="required">LabManager Connection</td>
+
+          <td>The name of the configuration which holds all the
+          connection information for LabManager. This must
+          reference a valid existing configuration. (Required)</td>
+        </tr>
+
+        <tr>
+          <td class="required">LabManager Organization</td>
+
+          <td>The name of the Organization in LabManager. This must
+          reference an existing Organization in Lab Manager.
+          (Required)</td>
+        </tr>
+
+        <tr>
+          <td>LabManager Workspace</td>
+
+          <td>The workspace within Lab Manager (required in Lab
+          Manager 4.0 and newer). This must reference an existing
+          Workspace in Lab Manager (default is Main).</td>
+        </tr>
+
+        <tr>
+          <td>Configuration</td>
+
+          <td>A configuration in the Lab Manager library. Provide
+          the name of an existing configuration.</td>
+        </tr>
+
+        <tr>
+          <td>New Library Name</td>
+
+          <td>New library name for the captured configuration. If
+          blank the configuration won't be captured to the
+          library.</td>
+        </tr>
+
+        <tr>
+          <td>Save Configuration name</td>
+
+          <td>Name of the saved configuration. If blank the
+          configuration won't be saved.</td>
+        </tr>
+
+        <tr>
+          <td>Save Configuration owner</td>
+
+          <td>Username of the new owner of the saved configuration.
+          If blank the owner is not changed.</td>
+        </tr>
+
+        <tr>
+          <td>Deployed Results location</td>
+
+          <td>The ElectricFlow location to get properties
+          (default is /myJob/LabManager/deployed_configs).</td>
+        </tr>
+
+        <tr>
+          <td class="required">Deployed tag</td>
+
+          <td>Tag to get the deployed configuration.
+          (Required)</td>
+        </tr>
+
+        <tr>
+          <td>Results location</td>
+
+          <td>The ElectricFlow location to store resulting
+          configuration properties (default is
+          /myJob/LabManager/deployed_configs).</td>
+        </tr>
+
+        <tr>
+          <td>Results tag</td>
+
+          <td>The unique tag for this operation to keep it separate
+          from other operations stored in the same results
+          area.(default is $[jobStepId])</td>
+        </tr>
+
+        <tr>
+          <td>JobStep Timeout</td>
+
+          <td>Timeout for the step execution in minutes. Blank
+          means no timeout.</td>
+        </tr>
+      </tbody>
+    </table><img alt="" src="../../plugins/@PLUGIN_KEY@/images/parameters/cleanup_panel.png" /></div>
+
+    <div id="BulkCleanup"><a id="BulkCleanup" name="BulkCleanup"></a>
+
+    <h3>BulkCleanup</h3>
+
+    <p>This procedure allows the user to undeploy and clean up
+    multiple configurations which owns, specifying the age (number
+    of days) and a name pattern.</p>
+
+    <table class="grid">
+      <thead>
+        <tr>
+          <th>Parameter</th>
+
+          <th>Description</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td class="required">LabManager Connection</td>
+
+          <td>The name of the configuration which holds all the
+          connection information for LabManager. This must
+          reference a valid existing configuration. (Required)</td>
+        </tr>
+
+        <tr>
+          <td class="required">LabManager Organization</td>
+
+          <td>The name of the Organization in LabManager. This must
+          reference an existing Organization in Lab Manager.
+          (Required)</td>
+        </tr>
+
+        <tr>
+          <td>LabManager Workspace</td>
+
+          <td>The workspace within Lab Manager (required in Lab
+          Manager 4.0 and newer). This must reference an existing
+          Workspace in Lab Manager (default is Main).</td>
+        </tr>
+
+        <tr>
+          <td>Days old</td>
+
+          <td>The number of days old. If blank all configurations
+          for the given user will be cleaned up.</td>
+        </tr>
+
+        <tr>
+          <td>Delete Configuration?</td>
+
+          <td>Delete configurations. If not checked, just undeploy;
+          otherwise undeploy and delete.</td>
+        </tr>
+
+        <tr>
+          <td>Name pattern</td>
+
+          <td>Name pattern. If specified, only configurations
+          matching the pattern will be cleaned up. If blank all
+          configurations will be cleaned up.</td>
+        </tr>
+
+        <tr>
+          <td>JobStep Timeout</td>
+
+          <td>Timeout for the step execution in minutes. Blank
+          means no timeout.</td>
+        </tr>
+      </tbody>
+    </table><img alt="" src="../../plugins/@PLUGIN_KEY@/images/parameters/bulkcleanup_panel.png" /></div>
+
+    <div id="Capture"><a id="Capture" name="Capture"></a>
+
+    <h3>Capture</h3>
+
+    <p>This procedure captures a workspace configuration and saves
+    it to a specified Lab Manager datastore.<br />
+    If "Configuration" is set the procedure will capture it, if
+    this parameter is empty the procedure will search for a
+    configuration at "Deployed Results location"/"Deployed tag". If
+    the "Deployed Results location" field is blank, the default
+    location in the job is used:
+    /myJob/LabManager/deployed_configs.<br />
+    The plugin will set properties on the ElectricFlow server
+    using the values from "Results location" and "Results tag".
+    Users can set the location where they want properties to be
+    stored by specifying the "Results location" field, if this
+    field is blank, the default location in the job is used:
+    /myJob/LabManager/deployed_configs. When this procedure is
+    executed, properties will be stored in "Results
+    location"/"Results tag".</p>
+
+    <table class="grid">
+      <thead>
+        <tr>
+          <th>Parameter</th>
+
+          <th>Description</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td class="required">LabManager Connection</td>
+
+          <td>The name of the configuration which holds all the
+          connection information for LabManager. This must
+          reference a valid existing configuration. (Required)</td>
+        </tr>
+
+        <tr>
+          <td class="required">LabManager Organization</td>
+
+          <td>The name of the Organization in LabManager. This must
+          reference an existing Organization in Lab Manager.
+          (Required)</td>
+        </tr>
+
+        <tr>
+          <td>LabManager Workspace</td>
+
+          <td>The workspace within Lab Manager (required in Lab
+          Manager 4.0 and newer). This must reference an existing
+          Workspace in Lab Manager (default is Main).</td>
+        </tr>
+
+        <tr>
+          <td>Configuration</td>
+
+          <td>A configuration in the Lab Manager library. Provide
+          the name of an existing configuration.</td>
+        </tr>
+
+        <tr>
+          <td class="required">New Library Name</td>
+
+          <td>New library name for the captured configuration.
+          (Required)</td>
+        </tr>
+
+        <tr>
+          <td>Deployed Results location</td>
+
+          <td>The ElectricFlow location to get properties
+          (default is /myJob/LabManager/deployed_configs).</td>
+        </tr>
+
+        <tr>
+          <td class="required">Deployed tag</td>
+
+          <td>Tag to get the deployed configuration.
+          (Required)</td>
+        </tr>
+
+        <tr>
+          <td>Results location</td>
+
+          <td>The ElectricFlow location to store resulting
+          configuration properties (default is
+          /myJob/LabManager/deployed_configs).</td>
+        </tr>
+
+        <tr>
+          <td class="required">Results tag</td>
+
+          <td>The unique tag for this operation to keep it separate
+          from other operations stored in the same results area
+          (default is $[jobStepId]). (Required)</td>
+        </tr>
+
+        <tr>
+          <td>JobStep Timeout</td>
+
+          <td>Timeout for the step execution in minutes. Blank
+          means no timeout.</td>
+        </tr>
+      </tbody>
+    </table><img alt="" src="../../plugins/@PLUGIN_KEY@/images/parameters/capture_panel.png" /></div>
+
+    <div id="Clone"><a id="Clone" name="Clone"></a>
+
+    <h3>Clone</h3>
+
+    <p>This procedure allows the user to clone a workspace
+    configuration, save it in a datastore, and make it visible in
+    the workspace under the new name, with the option of specifying
+    the owner of the new configuration.<br />
+    The plugin will set properties on the ElectricFlow server
+    using the values from "Results location" and "Results tag".
+    Users can set the location where they want properties to be
+    stored by specifying the "Results location" field, if this
+    field is blank, the default location in the job is used:
+    /myJob/LabManager/deployed_configs. When this procedure is
+    executed, properties will be stored in "Results
+    location"/"Results tag".</p>
+
+    <table class="grid">
+      <thead>
+        <tr>
+          <th>Parameter</th>
+
+          <th>Description</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td class="required">LabManager Connection</td>
+
+          <td>The name of the configuration which holds all the
+          connection information for LabManager. This must
+          reference a valid existing configuration. (Required)</td>
+        </tr>
+
+        <tr>
+          <td class="required">LabManager Organization</td>
+
+          <td>The name of the Organization in LabManager. This must
+          reference an existing Organization in Lab Manager.
+          (Required)</td>
+        </tr>
+
+        <tr>
+          <td>LabManager Workspace</td>
+
+          <td>The workspace within Lab Manager (required in Lab
+          Manager 4.0 and newer). This must reference an existing
+          Workspace in Lab Manager (default is Main).</td>
+        </tr>
+
+        <tr>
+          <td class="required">Configuration to clone</td>
+
+          <td>The name of the configuration to be cloned. Provide
+          the name of an existing configuration. (Required)</td>
+        </tr>
+
+        <tr>
+          <td class="required">New Configuration Name</td>
+
+          <td>The name of the new configuration. (Required)</td>
+        </tr>
+
+        <tr>
+          <td>Configuration owner</td>
+
+          <td>Username of the new owner of the created
+          configuration. If blank the owner is not changed.</td>
+        </tr>
+
+        <tr>
+          <td>Results location</td>
+
+          <td>The ElectricFlow location to store resulting
+          configuration properties (default is
+          /myJob/LabManager/deployed_configs).</td>
+        </tr>
+
+        <tr>
+          <td class="required">Results tag</td>
+
+          <td>The unique tag for this operation to keep it separate
+          from other operations stored in the same results area
+          (default is $[JobStepId]). (Required)</td>
+        </tr>
+
+        <tr>
+          <td>JobStep Timeout</td>
+
+          <td>Timeout for the step execution in minutes. Blank
+          means no timeout.</td>
+        </tr>
+      </tbody>
+    </table><img alt="" src="../../plugins/@PLUGIN_KEY@/images/parameters/clone_panel.png" /></div>
+
+    <div id="Command"><a id="Command" name="Command"></a>
+
+    <h3>Command</h3>
+
+    <p>This procedure allows users to run any LabManager API
+    command.</p>
+
+    <table class="grid">
+      <thead>
+        <tr>
+          <th>Parameter</th>
+
+          <th>Description</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td class="required">LabManager Connection</td>
+
+          <td>The name of the configuration which holds all the
+          connection information for LabManager. This must
+          reference a valid existing configuration. (Required)</td>
+        </tr>
+
+        <tr>
+          <td>LabManager Organization</td>
+
+          <td>The name of the Organization in LabManager. This must
+          reference an existing Organization in Lab Manager.</td>
+        </tr>
+
+        <tr>
+          <td>LabManager Workspace</td>
+
+          <td>The workspace within Lab Manager (required in Lab
+          Manager 4.0 and newer). This must reference an existing
+          Workspace in Lab Manager (default is Main).</td>
+        </tr>
+
+        <tr>
+          <td class="required">LabManager API command</td>
+
+          <td>Run any LabManager API command. (Required)</td>
+        </tr>
+
+        <tr>
+          <td>Command arguments</td>
+
+          <td>Enter each argument as name=value with multiple
+          arguments separated by spaces.</td>
+        </tr>
+
+        <tr>
+          <td>JobStep Timeout</td>
+
+          <td>Timeout for the step execution in minutes. Blank
+          means no timeout.</td>
+        </tr>
+      </tbody>
+    </table><img alt="" src="../../plugins/@PLUGIN_KEY@/images/parameters/command_panel.png" /></div>
+
+    <div id="ConfigurationChangeOwner"><a id="ConfigurationChangeOwner" name="ConfigurationChangeOwner"></a>
+
+    <h3>ConfigurationChangeOwner</h3>
+
+    <p>This procedure allows the user to change the owner of the
+    given configuration.</p>
+
+    <table class="grid">
+      <thead>
+        <tr>
+          <th>Parameter</th>
+
+          <th>Description</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td class="required">LabManager Connection</td>
+
+          <td>The name of the configuration which holds all the
+          connection information for LabManager. This must
+          reference a valid existing configuration. (Required)</td>
+        </tr>
+
+        <tr>
+          <td class="required">LabManager Organization</td>
+
+          <td>The name of the Organization in LabManager. This must
+          reference an existing Organization in Lab Manager.
+          (Required)</td>
+        </tr>
+
+        <tr>
+          <td>LabManager Workspace</td>
+
+          <td>The workspace within Lab Manager (required in Lab
+          Manager 4.0 and newer). This must reference an existing
+          Workspace in Lab Manager (default is Main).</td>
+        </tr>
+
+        <tr>
+          <td class="required">Configuration Id</td>
+
+          <td>Id of the configuration whose owner will be
+          changed.(Required)</td>
+        </tr>
+
+        <tr>
+          <td class="required">New Owner Name</td>
+
+          <td>Id of the new configuration owner. (Required)</td>
+        </tr>
+
+        <tr>
+          <td>JobStep Timeout</td>
+
+          <td>Timeout for the step execution in minutes. Blank
+          means no timeout.</td>
+        </tr>
+      </tbody>
+    </table><img alt="" src="../../plugins/@PLUGIN_KEY@/images/parameters/conf_change_owner_panel.png" /></div>
+
+    <div id="CreateConfigurationFromVMTemplate"><a id="CreateConfigurationFromVMTemplate" name="CreateConfigurationFromVMTemplate"></a>
+
+    <h3>CreateConfigurationFromVMTemplate</h3>
+
+    <p>This procedure allows the user to provision a configuration
+    from a VM template. First, the configuration is created. Then,
+    one or more VMs are added to the configuration. Finally, the
+    configuration is deployed and powered on, it is set to public
+    or private, and the resources are created.<br />
+    The plugin will set properties on the ElectricFlow server
+    using the values from "Results location" and "Provision tag".
+    Users can set the location where they want properties to be
+    stored by specifying the "Results location" field, if this
+    field is blank, the default location in the job is used:
+    /myJob/LabManager/deployed_configs. When this procedure is
+    executed, properties will be stored in "Results
+    location"/"Provision tag". If "Create resources?" is checked,
+    the resources will use the "Commander Workspace" and will be
+    assigned to "Resource Pool(s)", If it is unchecked "Resource
+    Pool(s)" and "Commander Workspace" will be ignored.</p>
+
+    <p><strong>IMPORTANT:</strong> This procedure is intended to
+    run on Lab Manager 3.5 or earlier ONLY. See procedure:
+    CreateConfigurationFromVMTemplate4.0</p>
+
+    <table class="grid">
+      <thead>
+        <tr>
+          <th>Parameter</th>
+
+          <th>Description</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td class="required">LabManager Connection</td>
+
+          <td>The name of the configuration which holds all the
+          connection information for LabManager. This must
+          reference a valid existing configuration. (Required)</td>
+        </tr>
+
+        <tr>
+          <td>LabManager Organization</td>
+
+          <td>The name of the Organization in LabManager. This must
+          reference an existing Organization in Lab Manager.</td>
+        </tr>
+
+        <tr>
+          <td>LabManager Workspace</td>
+
+          <td>The workspace within Lab Manager (required in Lab
+          Manager 4.0 and newer). This must reference an existing
+          Workspace in Lab Manager (default is Main).</td>
+        </tr>
+
+        <tr>
+          <td class="required">New Configuration Name</td>
+
+          <td>Name of the new configuration. (Required)</td>
+        </tr>
+
+        <tr>
+          <td>Description</td>
+
+          <td>Description of the new configuration.</td>
+        </tr>
+
+        <tr>
+          <td class="required">Templates</td>
+
+          <td>List of VM templates to add to the configuration.
+          Template names must be separated by semicolons (;).
+          (Required)</td>
+        </tr>
+
+        <tr>
+          <td>VMs Names</td>
+
+          <td>List of names of the VMs added to the configuration.
+          VM names must be separated by semicolons (;).</td>
+        </tr>
+
+        <tr>
+          <td>Boot seguence</td>
+
+          <td>List of boot sequence order values for the VMs.
+          Values must be separated by semicolons (;).</td>
+        </tr>
+
+        <tr>
+          <td>Boot delay</td>
+
+          <td>List of boot delay values for the VMs. Values must be
+          separated by semicolons (;).</td>
+        </tr>
+
+        <tr>
+          <td>Configuration state</td>
+
+          <td>Set the state of the configuration to public or
+          private.</td>
+        </tr>
+
+        <tr>
+          <td>Physical Network</td>
+
+          <td>Name or ID of the physical network to be used.</td>
+        </tr>
+
+        <tr>
+          <td class="required">Network deployment</td>
+
+          <td>
+            Network deployment option for VMs. (Required)
+
+            <ul>
+              <li>Options:</li>
+
+              <li>None</li>
+
+              <li>Fenced - Block IN and OUT</li>
+
+              <li>Fenced - Allow OUT</li>
+
+              <li>Fenced - Allow IN and OUT</li>
+
+              <li>Bridged</li>
+            </ul>
+          </td>
+        </tr>
+
+        <tr>
+          <td>Create resources?</td>
+
+          <td>Create resources for machines in the configuration.
+          If checked, this creates the resource on the
+          ElectricFlow server.</td>
+        </tr>
+
+        <tr>
+          <td>Commander Workspace</td>
+
+          <td>The ElectricFlow workspace the resource should
+          use.</td>
+        </tr>
+
+        <tr>
+          <td>Resource Pool(s)</td>
+
+          <td>The ElectricFlow resource pool names to be
+          associated with the machines in this configuration if
+          resources are created.</td>
+        </tr>
+
+        <tr>
+          <td>Results location</td>
+
+          <td>The ElectricFlow location to store resulting
+          configuration properties (default is
+          /myJob/LabManager/deployed_configs).</td>
+        </tr>
+
+        <tr>
+          <td class="required">Provision tag</td>
+
+          <td>The unique tag for this operation to keep it separate
+          from other operations stored in the same results area
+          (default is $[JobStepId]). (Required)</td>
+        </tr>
+
+        <tr>
+          <td>JobStep Timeout</td>
+
+          <td>Timeout for the step execution in minutes. Blank
+          means no timeout.</td>
+        </tr>
+      </tbody>
+    </table><img alt="" src="../../plugins/@PLUGIN_KEY@/images/parameters/create_from_template_panel.png" /></div>
+
+    <div id="CreateConfigurationFromVMTemplate4.0" class="procedure"><a id="CreateConfigurationFromVMTemplate4.0" name="CreateConfigurationFromVMTemplate4.0"></a>
+
+    <h3>CreateConfigurationFromVMTemplate4.0</h3>
+
+    <p>This procedure has the same functionality as the
+    CreateConfigurationFromVMTemplate procedure, but
+    CreateConfigurationFromVMTemplate4.0 also allows you to specify
+    the fence policy, deployment lease, and storage lease; as well
+    as a subset of VMs to deploy. Because these features were
+    implemented in Lab Manager 4.0, this procedure is not available
+    for previous Lab Manager versions.<br />
+    The plugin will set properties on the ElectricFlow server
+    using the values from "Results location" and "Provision tag".
+    Users can set the location where they want properties to be
+    stored by specifying the "Results location" field, if this
+    field is blank, the default location in the job is used:
+    /myJob/LabManager/deployed_configs. When this procedure is
+    executed, properties will be stored in "Results
+    location"/"Provision tag". If "Create resources?" is checked,
+    the resources will use the "Commander Workspace" and will be
+    assigned to "Resource Pool(s)", If it is unchecked "Resource
+    Pool(s)" and "Commander Workspace" will be ignored.</p>
+
+    <p><strong>IMPORTANT:</strong> This procedure is intended to
+    run on Lab Manager 4.0 or later.</p>
+
+    <table class="grid">
+      <thead>
+        <tr>
+          <th>Parameter</th>
+
+          <th>Description</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td class="required">LabManager Connection</td>
+
+          <td>The name of the configuration which holds all the
+          connection information for LabManager. This must
+          reference a valid existing configuration. (Required)</td>
+        </tr>
+
+        <tr>
+          <td>LabManager Organization</td>
+
+          <td>The name of the Organization in LabManager. This must
+          reference an existing Organization in Lab Manager.</td>
+        </tr>
+
+        <tr>
+          <td>LabManager Workspace</td>
+
+          <td>The workspace within Lab Manager (required in Lab
+          Manager 4.0 and newer). This must reference an existing
+          Workspace in Lab Manager (default is Main).</td>
+        </tr>
+
+        <tr>
+          <td class="required">New Configuration Name</td>
+
+          <td>Name of the new configuration. (Required)</td>
+        </tr>
+
+        <tr>
+          <td>Description</td>
+
+          <td>Description of the new configuration.</td>
+        </tr>
+
+        <tr>
+          <td class="required">Templates</td>
+
+          <td>List of VM templates to add to the configuration.
+          Template names must be separated by semicolons (;).
+          (Required)</td>
+        </tr>
+
+        <tr>
+          <td>VMs Names</td>
+
+          <td>List of names of the VMs added to the configuration.
+          VM names must be separated by semicolons (;).</td>
+        </tr>
+
+        <tr>
+          <td>Boot sequence</td>
+
+          <td>List of boot sequence order values for the VMs.
+          Values must be separated by semicolons (;).</td>
+        </tr>
+
+        <tr>
+          <td>Boot delay</td>
+
+          <td>List of boot delay values for the VMs. Values must be
+          separated by semicolons (;).</td>
+        </tr>
+
+        <tr>
+          <td class="required">Fence Policy</td>
+
+          <td>Fence policy enum for the configuration: NotSpecified
+          for either fenced or unfenced. True for fenced only.
+          False for unfenced only. (Required)</td>
+        </tr>
+
+        <tr>
+          <td class="required">Deployment Lease</td>
+
+          <td>Deployment lease in milliseconds. Pass 0 for Never
+          Expires. Max allowed value is one year. (Required)</td>
+        </tr>
+
+        <tr>
+          <td class="required">Storage Lease</td>
+
+          <td>Storage lease in milliseconds. Pass 0 for Never
+          Expires. Max allowed value is one year. (Required)</td>
+        </tr>
+
+        <tr>
+          <td>List of Vms to deploy</td>
+
+          <td>List of VMs to deploy. VM names must be separated by
+          semicolons (;). Blank means that all VMs will be
+          deployed.</td>
+        </tr>
+
+        <tr>
+          <td>Configuration state</td>
+
+          <td>Set the state of the configuration to public or
+          private.</td>
+        </tr>
+
+        <tr>
+          <td>Physical Network</td>
+
+          <td>Name or ID of the physical network to be used.</td>
+        </tr>
+
+        <tr>
+          <td class="required">Network deployment</td>
+
+          <td>
+            Network deployment option for VMs. (Required)
+
+            <ul>
+              <li>Options:</li>
+
+              <li>None</li>
+
+              <li>Fenced - Block IN and OUT</li>
+
+              <li>Fenced - Allow OUT</li>
+
+              <li>Fenced - Allow IN and OUT</li>
+
+              <li>Bridged</li>
+            </ul>
+          </td>
+        </tr>
+
+        <tr>
+          <td>Create resources?</td>
+
+          <td>Create resources for machines in the configuration.
+          If checked, this creates the resource on the
+          ElectricFlow server.</td>
+        </tr>
+
+        <tr>
+          <td>Commander Workspace</td>
+
+          <td>The ElectricFlow workspace the resource should
+          use.</td>
+        </tr>
+
+        <tr>
+          <td>Resource Pool(s)</td>
+
+          <td>The ElectricFlow resource pool names to be
+          associated with the machines in this configuration if
+          resources are created.</td>
+        </tr>
+
+        <tr>
+          <td>Results location</td>
+
+          <td>The ElectricFlow location to store resulting
+          configuration properties (default is
+          /myJob/LabManager/deployed_configs).</td>
+        </tr>
+
+        <tr>
+          <td class="required">Provision tag</td>
+
+          <td>The unique tag for this operation to keep it separate
+          from other operations stored in the same results area
+          (default is $[JobStepId]). (Required)</td>
+        </tr>
+
+        <tr>
+          <td>JobStep Timeout</td>
+
+          <td>Timeout for the step execution in minutes. Blank
+          means no timeout.</td>
+        </tr>
+      </tbody>
+    </table><img alt="" src="../../plugins/@PLUGIN_KEY@/images/parameters/create_from_template4_panel.png" /></div>
+
+    <div id="CreateResourcesFromConfiguration"><a name="CreateResourcesFromConfiguration" id="CreateResourcesFromConfiguration"></a>
+
+    <h3>CreateResourcesFromConfiguration</h3>
+
+    <p>This procedure allows the user to create a resource for each
+    virtual machine of a configuration or for specified virtual
+    machines.<br />
+    Created resources will use the "Commander Workspace" and will
+    be assigned to "Resource Pool(s)", if "Commander Workspace" is
+    blank, default workspace will be used, if "Resource Pool(s)" is
+    blank, resources will be assigned to "EC-$[JobStepId]"
+    pool.<br />
+    The plugin will set properties on the ElectricFlow server
+    using the values from "Results location" and "Results tag".
+    Users can set the location where they want properties to be
+    stored by specifying the "Results location" field, if this
+    field is blank, the default location in the job is used:
+    /myJob/LabManager/deployed_configs. When this procedure is
+    executed, properties will be stored in "Results
+    location"/"Results tag".</p>
+
+    <table class="grid">
+      <thead>
+        <tr>
+          <th>Parameter</th>
+
+          <th>Description</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td class="required">LabManager Connection</td>
+
+          <td>The name of the configuration which holds all the
+          connection information for LabManager. This must
+          reference a valid existing configuration. (Required)</td>
+        </tr>
+
+        <tr>
+          <td>LabManager Organization</td>
+
+          <td>The name of the Organization in LabManager. This must
+          reference an existing Organization in Lab Manager.</td>
+        </tr>
+
+        <tr>
+          <td>LabManager Workspace</td>
+
+          <td>The workspace within Lab Manager (required in Lab
+          Manager 4.0 and newer). This must reference an existing
+          Workspace in Lab Manager (default is Main).</td>
+        </tr>
+
+        <tr>
+          <td class="required">Configuration</td>
+
+          <td>The name of the configuration containing the virtual
+          machines to create the resources from. (Required)</td>
+        </tr>
+
+        <tr>
+          <td>Vms List</td>
+
+          <td>List of VMs to create resources from. VM names must
+          be separated by semicolons (;). Blank means that
+          resources will be created for all the VMs.</td>
+        </tr>
+
+        <tr>
+          <td>Commander Workspace</td>
+
+          <td>The ElectricFlow workspace the resource should
+          use.</td>
+        </tr>
+
+        <tr>
+          <td>Resource Pool(s)</td>
+
+          <td>The ElectricFlow resource pool names to be
+          associated with the machines in this configuration if
+          resources are created.</td>
+        </tr>
+
+        <tr>
+          <td>Results location</td>
+
+          <td>The ElectricFlow location to store properties
+          (default is /myJob/LabManager/deployed_configs).</td>
+        </tr>
+
+        <tr>
+          <td class="required">Results tag</td>
+
+          <td>The unique tag for this operation to keep it separate
+          from other operations stored in the same results area
+          (default is $[jobStepId]). (Required)</td>
+        </tr>
+
+        <tr>
+          <td>JobStep Timeout</td>
+
+          <td>Timeout for the step execution in minutes. Blank
+          means no timeout.</td>
+        </tr>
+      </tbody>
+    </table><img alt="" src="../../plugins/@PLUGIN_KEY@/images/parameters/create_resources_panel.png" /></div>
+
+    <div id="Deploy"><a id="Deploy" name="Deploy"></a>
+
+    <h3>Deploy</h3>
+
+    <p>This procedure allows the user to deploy and start an
+    existing configuration.</p>
+
+    <table class="grid">
+      <thead>
+        <tr>
+          <th>Parameter</th>
+
+          <th>Description</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td class="required">LabManager Connection</td>
+
+          <td>The name of the configuration which holds all the
+          connection information for LabManager. This must
+          reference a valid existing configuration.(Required)</td>
+        </tr>
+
+        <tr>
+          <td>LabManager Organization</td>
+
+          <td>The name of the Organization in LabManager. This must
+          reference an existing Organization in Lab Manager.</td>
+        </tr>
+
+        <tr>
+          <td>LabManager Workspace</td>
+
+          <td>The workspace within Lab Manager (required in Lab
+          Manager 4.0 and newer). This must reference an existing
+          Workspace in Lab Manager (default is Main).</td>
+        </tr>
+
+        <tr>
+          <td class="required">Configuration</td>
+
+          <td>The name of the configuration to deploy.
+          (Required)</td>
+        </tr>
+
+        <tr>
+          <td>Physical Network</td>
+
+          <td>Name or ID of the physical network to be used.</td>
+        </tr>
+
+        <tr>
+          <td class="required">Network deployment</td>
+
+          <td>
+            Network deployment option for VMs. (Required)
+
+            <ul>
+              <li>Options:</li>
+
+              <li>None</li>
+
+              <li>Fenced - Block IN and OUT</li>
+
+              <li>Fenced - Allow OUT</li>
+
+              <li>Fenced - Allow IN and OUT</li>
+
+              <li>Bridged</li>
+            </ul>
+          </td>
+        </tr>
+
+        <tr>
+          <td>JobStep Timeout</td>
+
+          <td>Timeout for the step execution in minutes. Blank
+          means no timeout.</td>
+        </tr>
+      </tbody>
+    </table><img alt="" src="../../plugins/@PLUGIN_KEY@/images/parameters/deploy_panel.png" /></div>
+
+    <div id="Snapshot"><a id="Snapshot" name="Snapshot"></a>
+
+    <h3>Snapshot</h3>
+
+    <p>This procedure allows the user to save a configuration state
+    at a specific point in time.<br />
+    If "Configuration" is set the procedure will get its
+    information and will take a snapshot for the given
+    configuration, if this parameter is empty the procedure will
+    get the provision results from "Deployed Results
+    location"/"Deployed tag" for a configuration to use. If the
+    "Deployed Results location" field is blank, the default
+    location in the job is used:
+    /myJob/LabManager/deployed_configs.</p>
+
+    <table class="grid">
+      <thead>
+        <tr>
+          <th>Parameter</th>
+
+          <th>Description</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td class="required">LabManager Connection</td>
+
+          <td>The name of the configuration which holds all the
+          connection information for LabManager. This must
+          reference a valid existing configuration. (Required)</td>
+        </tr>
+
+        <tr>
+          <td class="required">LabManager Organization</td>
+
+          <td>The name of the Organization in LabManager. This must
+          reference an existing Organization in Lab Manager.
+          (Required)</td>
+        </tr>
+
+        <tr>
+          <td>LabManager Workspace</td>
+
+          <td>The workspace within Lab Manager (required in Lab
+          Manager 4.0 and newer). This must reference an existing
+          Workspace in Lab Manager (default is Main).</td>
+        </tr>
+
+        <tr>
+          <td>Configuration</td>
+
+          <td>A configuration in the Lab Manager library.</td>
+        </tr>
+
+        <tr>
+          <td>Deployed Results location</td>
+
+          <td>The ElectricFlow location to get properties
+          (default is /myJob/LabManager/deployed_configs).</td>
+        </tr>
+
+        <tr>
+          <td class="required">Deployed tag</td>
+
+          <td>Tag to get the deployed configuration.
+          (Required)</td>
+        </tr>
+
+        <tr>
+          <td>JobStep Timeout</td>
+
+          <td>Timeout for the step execution in minutes. Blank
+          means no timeout.</td>
+        </tr>
+      </tbody>
+    </table><img alt="" src="../../plugins/@PLUGIN_KEY@/images/parameters/snapshot_panel.png" /></div>
+
+    <div id="Revert"><a id="Revert" name="Revert"></a>
+
+    <h3>Revert</h3>
+
+    <p>This procedure allows the user to return the configuration
+    to a snapshot state.<br />
+    If "Configuration" is set the procedure will get its
+    information and will revert the given configuration, if this
+    parameter is empty the procedure will get the results from
+    "Deployed Results location"/"Deployed tag" for a configuration
+    to use. If the "Deployed Results location" field is blank, the
+    default location in the job is used:
+    /myJob/LabManager/deployed_configs.</p>
+
+    <table class="grid">
+      <thead>
+        <tr>
+          <th>Parameter</th>
+
+          <th>Description</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td class="required">LabManager Connection</td>
+
+          <td>The name of the configuration which holds all the
+          connection information for LabManager. This must
+          reference a valid existing configuration. (Required)</td>
+        </tr>
+
+        <tr>
+          <td class="required">LabManager Organization</td>
+
+          <td>The name of the Organization in LabManager. This must
+          reference an existing Organization in Lab Manager.
+          (Required)</td>
+        </tr>
+
+        <tr>
+          <td>LabManager Workspace</td>
+
+          <td>The workspace within Lab Manager (required in Lab
+          Manager 4.0 and newer). This must reference an existing
+          Workspace in Lab Manager (default is Main).</td>
+        </tr>
+
+        <tr>
+          <td>Configuration</td>
+
+          <td>A configuration in the Lab Manager library.</td>
+        </tr>
+
+        <tr>
+          <td>Deployed Results location</td>
+
+          <td>The ElectricFlow location to get properties
+          (default is /myJob/LabManager/deployed_configs).</td>
+        </tr>
+
+        <tr>
+          <td class="required">Deployed tag</td>
+
+          <td>Tag to get the deployed configuration.(Required)</td>
+        </tr>
+
+        <tr>
+          <td>JobStep Timeout</td>
+
+          <td>Timeout for the step execution in minutes. Blank
+          means no timeout.</td>
+        </tr>
+      </tbody>
+    </table><img alt="" src="../../plugins/@PLUGIN_KEY@/images/parameters/revert_panel.png" /></div>
+
+    <div id="CloudManagerGrow"><a id="CloudManagerGrow" name="CloudManagerGrow"></a>
+
+    <h3>CloudManagerGrow</h3>
+
+    <p>This procedure allows the plugin to work with CloudManager
+    plugin, it calls Provision procedure and is intended to be run
+    by CloudManager.</p>
+
+    <table class="grid">
+      <thead>
+        <tr>
+          <th>Parameter</th>
+
+          <th>Description</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td class="required">LabManager Connection</td>
+
+          <td>The name of the configuration which holds all the
+          connection information for LabManager. This must
+          reference a valid existing configuration. (Required)</td>
+        </tr>
+
+        <tr>
+          <td>LabManager Organization</td>
+
+          <td>The name of the Organization in LabManager. This must
+          reference an existing Organization in Lab Manager.</td>
+        </tr>
+
+        <tr>
+          <td>LabManager Workspace</td>
+
+          <td>The workspace within Lab Manager (required in Lab
+          Manager 4.0 and newer). This must reference an existing
+          Workspace in Lab Manager (default is Main).</td>
+        </tr>
+
+        <tr>
+          <td class="required">Configuration</td>
+
+          <td>A configuration in the Lab Manager library. Provide
+          the name of an existing configuration. (Required)</td>
+        </tr>
+
+        <tr>
+          <td>New Configuration Name</td>
+
+          <td>The name to use for the newly checked out
+          configuration. If blank a name will be automatically
+          created.</td>
+        </tr>
+
+        <tr>
+          <td class="required">LabManager version</td>
+
+          <td>LabManager version number. (Required)</td>
+        </tr>
+
+        <tr>
+          <td>Configuration state</td>
+
+          <td>Set the state of the configuration to public or
+          private.</td>
+        </tr>
+
+        <tr>
+          <td>Physical Network</td>
+
+          <td>Name or ID of the physical network to be used.</td>
+        </tr>
+
+        <tr>
+          <td class="required">Network deployment</td>
+
+          <td>
+            Network deployment option for VMs.(Required)
+
+            <ul>
+              <li style="list-style-type: none; list-style-image: none; list-style-position: outside;">
+              Options:</li>
+
+              <li>None</li>
+
+              <li>Fenced - Block IN and OUT</li>
+
+              <li>Fenced - Allow OUT</li>
+
+              <li>Fenced - Allow IN and OUT</li>
+
+              <li>Bridged</li>
+            </ul>
+          </td>
+        </tr>
+
+        <tr>
+          <td>Commander Workspace</td>
+
+          <td>The ElectricFlow workspace the resource should
+          use.</td>
+        </tr>
+
+        <tr>
+          <td class="required">Provision tag</td>
+
+          <td>The unique tag for this provision to keep it separate
+          from other provisions stored in the same results area
+          (default is $[jobStepId]). (Required)</td>
+        </tr>
+
+        <tr>
+          <td>JobStep Timeout</td>
+
+          <td>Timeout for the step execution in minutes. Blank
+          means no timeout.</td>
+        </tr>
+
+        <tr>
+          <td class="required">Number of servers</td>
+
+          <td>Number of new servers. (Required)</td>
+        </tr>
+
+        <tr>
+          <td class="required">Resource Pool</td>
+
+          <td>The ElectricFlow resource pool names to be
+          associated with the machines in this configuration if
+          resources are created. (Required)</td>
+        </tr>
+      </tbody>
+    </table><img alt="" src="../../plugins/@PLUGIN_KEY@/images/parameters/cloudmanager_grow_panel.png" /></div>
+
+    <div id="CloudManagerShrink"><a id="CloudManagerShrink" name="CloudManagerShrink"></a>
+
+    <h3>CloudManagerShrink</h3>
+
+    <p>This procedure allows the plugin to work with CloudManager
+    plugin, it calls Cleanup procedure and is intended to be run by
+    CloudManager.</p>
+
+    <table class="grid">
+      <thead>
+        <tr>
+          <th>Parameter</th>
+
+          <th>Description</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td class="required">LabManager Connection</td>
+
+          <td>The name of the configuration which holds all the
+          connection information for LabManager. This must
+          reference a valid existing configuration. (Required)</td>
+        </tr>
+
+        <tr>
+          <td class="required">List of Deployments</td>
+
+          <td>A list of deployments (previously created by
+          CloudManagerGrow) to stop. (Required)</td>
+        </tr>
+      </tbody>
+    </table><img alt="" src="../../plugins/@PLUGIN_KEY@/images/parameters/cloudmanager_shrink_panel.png" /></div>
+
+    <div id="CloudManagerSync"><a id="CloudManagerSync" name="CloudManagerSync"></a>
+
+    <h3>CloudManagerSync</h3>
+
+    <p>This procedure allows the plugin to work with CloudManager
+    plugin, it verifies that instances it has recorded as "alive"
+    are indeed still alive, is intended to be run by
+    CloudManager.</p>
+
+    <table class="grid">
+      <thead>
+        <tr>
+          <th>Parameter</th>
+
+          <th>Description</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td class="required">LabManager Connection</td>
+
+          <td>The name of the configuration which holds all the
+          connection information for LabManager. This must
+          reference a valid existing configuration. (Required)</td>
+        </tr>
+
+        <tr>
+          <td class="required">List of Deployments</td>
+
+          <td>A list of deployments (previously created by
+          CloudManagerGrow) to check. (Required)</td>
+        </tr>
+      </tbody>
+    </table><img alt="" src="../../plugins/@PLUGIN_KEY@/images/parameters/cloudmanager_shrink_panel.png" /></div>
+
+    <h1>Examples and Use Cases</h1>
+    <!-- This section is for examples and use cases, including screenshots of the new Parameter Panel with example values filled in.
+        Unfortunately, I can't tell you what exactly to put here, but it's OK to put what seems like too much! Include both parameter
+        values and output where appropriate. Use a separate 'h2' header for each example. Under the h2 header try to stay with the style
+        outline used above where possible.
+        -->
+
+    <h2>Use Case 1: Provision, Consume &amp; Cleanup Job</h2>
+
+    <p>The most common use for this plugin is to create a virtual
+    machine, then create an ElectricFlow resource assigned to
+    this machine, use the resource to run some operations, and the
+    delete the resource and the virtual machine. To accomplish
+    these tasks you must:</p>
+
+    <ol>
+      <li>Create a Plugin Configuration.</li>
+
+      <li>Provision a LabManager Configuration.</li>
+
+      <li>Create a Resource for this provision.</li>
+
+      <li>Use the created resource.</li>
+
+      <li>Delete the resource.</li>
+
+      <li>Delete the provisioned VM.</li>
+    </ol>
+
+    <h4>Create a Plugin Configuration</h4>
+
+    <p>Plugin configurations are created by going to the Electric
+    Commander "Administration" tab, then to the "Plugins" sub-tab.
+    On the right side of the line for the LabManager plugin, there
+    is a "Configure" link which will open the Configuration
+    page.<br />
+    Create a new configuration by specifying the requested
+    parameters:</p><img alt="" src="../../plugins/@PLUGIN_KEY@/images/use_cases/Case_1/create_config.png" />
+
+    <p>Once the configuration is created, you can see it listed in
+    "Lab Manager Configurations", and now you are able to provision
+    a new VM.</p>
+
+    <h4>Provision</h4>
+
+    <p>Create a new Provision procedure, fill in the requested
+    parameters with real values from your Labmanager
+    server:</p><img alt="" src="../../plugins/@PLUGIN_KEY@/images/use_cases/Case_1/provision_parameters.png" />
+
+    <p>Make sure you selected "Create resources?" checkbox.</p>
+
+    <h4>Consume</h4>
+
+    <p>Create a new command step to use the created resource, in
+    this example we will pick a resource from the pool and just add
+    an ec-perl sleep to use it for 30 seconds</p><img alt="" src="../../plugins/@PLUGIN_KEY@/images/use_cases/Case_1/consume_parameters.png" />
+
+    <h4>Cleanup</h4>
+
+    <p>Now the resource has been used and is ready to be cleaned
+    up, create a Cleanup step, fill in the requested parameters, in
+    this example we will use "Deployed Results Location" to select
+    the configuration to clean instead of provide a specific
+    "Configuration":</p><img alt="" src="../../plugins/@PLUGIN_KEY@/images/use_cases/Case_1/cleanup_parameters.png" />
+
+    <h4>Results and outputs</h4>
+
+    <p>Once the job finished, you can see properties stored in
+    "Results Location".<br />
+    <img alt="" src="../../plugins/@PLUGIN_KEY@/images/use_cases/Case_1/job.png" /></p><img alt="" src="../../plugins/@PLUGIN_KEY@/images/use_cases/Case_1/results.png" />
+
+    <p>Provision output:</p><img alt="" src="../../plugins/@PLUGIN_KEY@/images/use_cases/Case_1/provision_log.png" />
+
+    <p>Cleanup output:</p><img alt="" src="../../plugins/@PLUGIN_KEY@/images/use_cases/Case_1/cleanup_log.png" />
+
+    <h1>Release Notes</h1>
+	<h2>@PLUGIN_KEY@ 2.2.3</h2>
+    <ul>
+        <li>Fixed issue with configurations being cached for IE.</li>
+    </ul>
+	
+	 <h2>@PLUGIN_KEY@-2.2.2</h2>
+
+    <ul>
+        <li>Renamed ElectricCommander to ElectricFlow.</li>
+    </ul>
+
+    <h2>@PLUGIN_KEY@-2.2.0</h2>
+
+    <ul>
+        <li>Added the feature to Attempt connection on CreateConfiguration.</li>
+    </ul>
+    
+    <h2>@PLUGIN_KEY@-2.1.2</h2>
+
+    <ul>
+        <li>Fixed references in step picker.</li>
+    </ul>
+    
+    <h2>@PLUGIN_KEY@-2.1.1</h2>
+
+    <ul>
+        <li>Procedure name(s) were changed in the step picker section</li>
+    </ul>
+    
+    <h2>@PLUGIN_KEY@-2.1.0</h2>
+
+    <ul>
+      <li>Added Procedure CloudManagerSync</li>
+
+      <li>Fixed CloudManagerShrink.</li>
+    </ul>
+
+    <h2>@PLUGIN_KEY@-2.0.4</h2>
+
+    <ul>
+      <li>Fixed Plugin configurations description in Help
+      Page.</li>
+
+      <li>Fixed ACLs problem when reinstalling.</li>
+
+      <li>Added IMPORTANT information about LM versions.</li>
+    </ul>
+
+    <h2>@PLUGIN_KEY@-2.0.3</h2>
+
+    <ul>
+      <li>Fixed Provision code copied on wrong step.</li>
+    </ul>
+
+    <h2>@PLUGIN_KEY@-2.0.2</h2>
+
+    <ul>
+      <li>Deleted CloudManagerGrow And CloudManagerShrink from
+      stepPicker.</li>
+
+      <li>Change Help page style</li>
+    </ul>
+
+    <h2>@PLUGIN_KEY@-2.0.1</h2>
+
+    <ul>
+      <li>Added help link to each procedure.</li>
+
+      <li>Parameter Panel XML Cleanup.</li>
+    </ul>
+
+    <h2>@PLUGIN_KEY@-2.0.0</h2>
+
+    <ul>
+      <li>Applied new help page template.</li>
+
+      <li>Added detailed Use Case.</li>
+    </ul>
+
+    <h2>EC-LabManager-1.6.0</h2>
+
+    <ul>
+      <li>Added CloudManager support.</li>
+
+      <li>Added CloudManagerGrow procedure.</li>
+
+      <li>Added CloudManagerShrink procedure.</li>
+
+      <li>Change XML parameters panel for all procedures.</li>
+    </ul>
+
+    <h2>EC-LabManager-1.5.1</h2>
+
+    <ul>
+      <li>Added new parameter <b>soap_timeout</b> to
+      CreateConfiguration procedure.</li>
+
+      <li>Added new parameter <b>debug</b> to CreateConfiguration
+      procedure.</li>
+    </ul>
+
+    <h2>EC-LabManager-1.5.0</h2>
+
+    <ul>
+      <li>Upgraded documentation (identified main functions, added
+      sections for every procedure: What does this procedure do?
+      and Why would you run it?</li>
+
+      <li>Reverted results location default to
+      '/myJob/LabManager/deployed_configs'.</li>
+
+      <li>Added new parameter <b>labmanager_config</b> to Cleanup,
+      Capture, Snapshot, and Revert procedures.</li>
+
+      <li>Plugin stores configuration information even if create
+      resource option is not provided.</li>
+
+      <li>Fixed Provision4.0 procedure for LabManager 4.0.</li>
+
+      <li>Fixed Cleanup procedure(check if machine is
+      started).</li>
+
+      <li>Cleanup steps marked run always.</li>
+    </ul>
+
+    <h2>EC-LabManager-1.4.2</h2>
+
+    <ul>
+      <li>Changed 'CreateConfiguration' procedure to
+      'CreateLMConnection'.</li>
+
+      <li>Changed 'DeleteConfiguration' procedure to
+      'DeleteLMConnection'.</li>
+
+      <li>Changed ec_visibility of 'CreateLMConnection' and
+      'DeleteLMConnection' to private.</li>
+    </ul>
+
+    <h2>EC-LabManager-1.4.1</h2>
+
+    <ul>
+      <li>Changed results location default to
+      '/myWorkspace/LabManager/deployed_configs'.</li>
+    </ul>
+
+    <h2>EC-LabManager-1.4.0</h2>
+
+    <ul>
+      <li>Added the BulkCleanup procedure.</li>
+    </ul>
+
+    <h2>EC-LabManager-1.3.0</h2>
+
+    <ul>
+      <li>Added the Lab Manager workspace parameter
+      (labmanager_work) to all steps.</li>
+
+      <li>Added the following procedures: Clone,
+      CreateConfigurationFromVMTemplate,
+      CreateConfigurationFromVMTemplate4.0,
+      CreateResourcesFromConfiguration, Deploy, and
+      Provision4.0.</li>
+
+      <li>In the Cleanup procedure:
+
+        <ul>
+          <li>Added the ability to delete the ElectricFlow
+          resources associated with the VMs in configurations.</li>
+
+          <li>Dropped the requirement for configuration/VMs to be
+          deployed.</li>
+
+          <li>Changed the 'save_configuration_owner' parameter to
+          ask for the username of the new owner, instead of the
+          user ID.</li>
+
+          <li>Added the option to capture the cleaned up
+          configuration.</li>
+        </ul>
+      </li>
+
+      <li>In the Provision procedure, added the ability to verify
+      that the configuration ID is successfully saved in
+      ElectricFlow properties.</li>
+    </ul>
+
+    <h2>EC-LabManager-1.2.2</h2>
+
+    <ul>
+      <li>Added a field to the Provision procedure to specify the
+      physical network to use.</li>
+
+      <li>Fixed bugs.</li>
+    </ul>
+
+    <h2>EC-LabManager-1.2.0</h2>
+
+    <ul>
+      <li>Added an option to the Provision procedure to set
+      configurations to public/private and changed auto-created
+      resources names.</li>
+
+      <li>Added a field to the Cleanup procedure to set the owner
+      of the saved configuration, wait to shut down machines before
+      shutting down the configuration, and force-undeploy
+      machines.</li>
+
+      <li>Added the timeout parameter to all steps.</li>
+
+      <li>Fixed bugs and changed parameters names in
+      lmintegration.pl file.</li>
+    </ul>
+
+    <h2>EC-LabManager-1.1.0</h2>
+
+    <ul>
+      <li>Added the following procedures: Capture,
+      ConfigurationChangeOwner, Revert, and Snapshot.</li>
+    </ul>
+  </div>
+</body>
+</html>

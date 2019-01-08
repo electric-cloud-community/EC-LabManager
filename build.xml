@@ -1,0 +1,22 @@
+<project name="EC-LabManager" default="package" basedir=".">
+	<description>
+        Build the EC-LabManager plugin
+    </description>
+
+    <property name="buildconfigdir" value="../Plugin-In-A-Box/scripts" />
+    
+	<!-- plugin specific properties -->
+	<property name="pluginKey" value="EC-LabManager" />
+	<property name="pluginVersion" value="3.0" />
+	<property name="gwtModules" value="ecplugins.labmanager.ConfigurationManagement" />
+    <property name="package.export.src" value="labmanager.srcs"/>
+
+    <import file="${buildconfigdir}/buildTargets.xml"/>
+
+    <!-- Package sources for exported utility classes. -->
+    <fileset id="labmanager.srcs" dir="${dir.src}">
+      <include name="**/PluginConstants.java"/>
+      <include name="**/LabManagerConfigList.java"/>
+      <include name="**/LabManagerConfigListLoader.*"/>
+    </fileset>
+</project>

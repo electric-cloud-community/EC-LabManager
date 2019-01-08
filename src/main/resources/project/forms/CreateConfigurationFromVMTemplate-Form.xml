@@ -1,0 +1,163 @@
+<editor>
+    <help>/commander/pages/@PLUGIN_KEY@-@PLUGIN_VERSION@/@PLUGIN_KEY@_help?s=Administration&amp;ss=Plugins#CreateConfigurationFromVMTemplate</help>
+    <formElement>
+        <type>entry</type>
+        <label>LabManager Connection:</label>
+        <property>connection_config</property>
+        <required>1</required>
+        <documentation>The name of the configuration which holds all the connection information for LabManager. This must reference a valid existing configuration.</documentation>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>LabManager Organization:</label>
+        <property>labmanager_org</property>
+        <required>0</required>
+        <documentation>The name of the Organization in LabManager. This must reference an existing Organization in Lab Manager.</documentation>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>LabManager Workspace:</label>
+        <property>labmanager_work</property>
+        <required>0</required>
+        <value>Main</value>
+        <documentation>The workspace within Lab Manager (required in Lab Manager 4.0 and newer). This must reference an existing Workspace in Lab Manager(default is Main).</documentation>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>New Configuration Name:</label>
+        <property>labmanager_name</property>
+        <required>1</required>
+        <documentation>Name of the new configuration.</documentation>
+    </formElement>
+    <formElement>
+        <type>textarea</type>
+        <label>Description:</label>
+        <property>labmanager_description</property>
+        <documentation>Description of the new configuration.</documentation>
+        <required>0</required>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>Templates:</label>
+        <property>labmanager_vmtemplates</property>
+        <required>1</required>
+        <documentation>List of VM templates to add to the configuration. Template names must be separated by semicolons (;).</documentation>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>VMs Names:</label>
+        <property>labmanager_vmnames</property>
+        <required>0</required>
+        <documentation>List of names of the VMs added to the configuration. VM names must be separated by semicolons (;).</documentation>
+    </formElement>    
+    <formElement>
+        <label>Boot seguence:</label>
+        <property>labmanager_boot_seq</property>
+        <value>0</value>
+        <documentation>List of boot sequence order values for the VMs. Values must be separated by semicolons (;).</documentation>
+        <required>0</required>
+        <type>entry</type>
+    </formElement>
+    <formElement>
+        <label>Boot delay:</label>        
+        <property>labmanager_boot_delay</property>
+        <value>0</value>
+        <documentation>List of boot delay values for the VMs. Values must be separated by semicolons (;).</documentation>
+        <required>0</required>
+        <type>entry</type>
+    </formElement>
+    <formElement>
+        <type>radio</type>
+        <label>Configuration state:</label>
+        <property>labmanager_state</property>
+        <value>0</value>
+        <documentation>Set the state of the configuration to public or private.</documentation>
+        <option>
+            <name>private</name>
+            <value>0</value>
+        </option>
+        <option>
+            <name>public</name>
+            <value>1</value>
+        </option>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>Physical Network:</label>
+        <property>labmanager_physical_network</property>
+        <required>0</required>
+        <documentation>Name or ID of the physical network to be used.</documentation>
+    </formElement>
+    <formElement>
+        <type>select</type>
+        <label>Network deployment:</label>
+        <property>labmanager_fencedmode</property>
+        <required>1</required>
+        <documentation>Network deployment option for VMs.</documentation>
+        <option>
+            <name>None</name>
+            <value>1</value>
+        </option>
+        <option>
+            <name>Fenced - Block IN and OUT</name>
+            <value>2</value>
+        </option>
+        <option>
+            <name>Fenced - Allow OUT</name>
+            <value>3</value>
+        </option>
+        <option>
+            <name>Fenced - Allow IN and OUT</name>
+            <value>4</value>
+        </option>
+        <option>
+            <name>Bridged</name>
+            <value>100</value>
+        </option>
+    </formElement>
+    <formElement>
+        <type>checkbox</type>
+        <label>Create resources?:</label>
+        <property>labmanager_createresource</property>
+        <checkedValue>1</checkedValue>
+        <uncheckedValue>0</uncheckedValue>
+        <initiallyChecked>1</initiallyChecked>
+        <documentation>Create resources for machines in the configuration. If checked, this creates the resource on the ElectricCommander server.</documentation>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>Commander Workspace:</label>
+        <property>labmanager_workspace</property>
+        <required>0</required>
+        <documentation>The ElectricCommander workspace the resource should use.</documentation>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>Resource Pool(s):</label>
+        <property>labmanager_pools</property>
+        <required>0</required>
+        <documentation>The ElectricCommander resource pool names to be associated with the machines in this configuration if resources are created.</documentation>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>Results location:</label>
+        <property>results</property>
+        <required>0</required>
+        <documentation>The ElectricCommander location to store resulting configuration properties (default is /myJob/LabManager/deployed_configs).</documentation>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>Provision tag:</label>
+        <property>tag</property>
+        <required>1</required>
+        <value>&#36;[jobStepId]</value>
+        <documentation>The unique tag for this operation to keep it separate from other operations stored in the same results area.</documentation>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>JobStep Timeout:</label>
+        <property>labmanager_timeout</property>
+        <required>0</required>
+        <documentation>Timeout for the step execution in minutes. Blank means no timeout.</documentation>
+    </formElement>
+</editor>
