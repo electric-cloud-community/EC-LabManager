@@ -25,7 +25,7 @@
         documentation for ideas, examples, etc. It's OK to copy word-for-word
         only if appropriate, such as FOSS - but not commercial software.
         -->
-    <p>July 1, 2015</p>
+    <p>January 11, 2019</p>
 		
     <p>VMware vCenter Lab Manager is a software development and
     testing tool that enables application owners, development, and
@@ -2081,6 +2081,10 @@
     <p>Cleanup output:</p><img alt="" src="../../plugins/@PLUGIN_KEY@/images/use_cases/Case_1/cleanup_log.png" />
 
     <h1>Release Notes</h1>
+    <h2>@PLUGIN_KEY@ 2.2.4</h2>
+    <ul>
+        <li>The plugin icon has been updated.</li>
+    </ul>
 	<h2>@PLUGIN_KEY@ 2.2.3</h2>
     <ul>
         <li>Fixed issue with configurations being cached for IE.</li>

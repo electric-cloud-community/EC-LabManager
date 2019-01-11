@@ -20,7 +20,7 @@ buildscript {
 
 group = 'com.electriccloud'
 description = 'Plugins : EC-LabManager'
-version = '2.2.3'
+version = '2.2.4'
 
 apply plugin: 'flow-gradle-plugin'
 apply plugin: 'license'
