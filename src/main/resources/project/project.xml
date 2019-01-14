@@ -6,6 +6,12 @@
         <description>Integration with Lab Manager</description>
         <workspaceName/>
         <propertySheet>
+            <!-- Improvement for ECPRESOURCELABMANAGER-76 -->
+            <property>
+                <propertyName>ec_icon</propertyName>
+                <value>images/icon-plugin.svg</value>
+            </property>
+            <!-- End of improvement for ECPRESOURCELABMANAGER-76 -->
             <property>
                 <propertyName>lm_driver</propertyName>
                 <description>Home for perl code</description>
